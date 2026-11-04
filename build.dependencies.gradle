@@ -22,6 +22,5 @@ dependencies {
     implementation 'dev.nextftc.v2:hardware:0.3.0'
     implementation 'dev.nextftc.v2:robot:0.3.0'
 
-    implementation "com.bylazar:docs:1.0.9"
     implementation "com.bylazar:fullpanels:1.0.19"
 }
