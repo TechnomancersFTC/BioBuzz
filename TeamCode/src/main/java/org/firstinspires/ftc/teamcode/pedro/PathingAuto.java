@@ -16,8 +16,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import dev.nextftc.robot.opmode.NextOpMode;
 
-@Autonomous
-    public class PathingAuto extends LinearOpMode {
+@Autonomous (name = "teste auto")
+public class PathingAuto extends LinearOpMode {
 
         private Follower follower = Constants.create(hardwareMap);
 
