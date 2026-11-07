@@ -8,12 +8,16 @@ repositories {
     maven {
         url 'https://mymaven.bylazar.com/releases'
     }
+<<<<<<< HEAD
 
     maven {
         url 'https://maven.brott.dev/'
     }
 
     google()
+=======
+    google() // Needed for androidx
+>>>>>>> f3c6fc53bd11e5e43a6e7d89c694b65a1cb4ad64
 }
 
 dependencies {
@@ -37,9 +41,12 @@ dependencies {
     implementation 'com.pedropathing:tuning:1.0.3'
     implementation 'com.pedropathing.ivy:pedro:1.1.1'
 
+<<<<<<< HEAD
     // FTC Dashboard
     implementation 'com.acmerobotics.dashboard:dashboard:0.6.0'
 
+=======
+>>>>>>> f3c6fc53bd11e5e43a6e7d89c694b65a1cb4ad64
     // Panels
     implementation 'com.bylazar:fullpanels:1.0.19'
 }
