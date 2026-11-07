@@ -5,6 +5,9 @@ import com.pedropathing.math.Pose;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Torreta;
@@ -20,36 +23,51 @@ import org.firstinspires.ftc.teamcode.subsystems.Torreta;
  *  - Analógico esquerdo: translação em relação ao campo
  *  - Analógico direito (X): rotação
  */
-@TeleOp(name = "Teste Torreta + Field Centric")
+@TeleOp(name = "BioBuzz")
 public class TorretaField extends OpMode {
 
     private Follower follower;
     private Torreta torreta;
 
+    private DcMotor intake, intake2;
+    private Servo servoE, servoD;
+    double p1 = 0.85;
+    double p0 = 0;
+    double p3 = 0.4;
+
     // Pose inicial do robô
-    private static final double START_X = 87.4;
-    private static final double START_Y = 133.8;
-    private static final double START_HEADING_DEG = 270.0;
+    private static final double START_X = 139;
+    private static final double START_Y = 43.7628;
+    private static final double START_HEADING_DEG = 180.0;
 
     // Direção do campo para a qual o driver está olhando (graus).
     // O robô começa em 270 (virado para -Y), então o driver está
     // olhando para -Y: empurrar o analógico para frente = andar em -Y.
     // Se o "frente" do campo estiver errado, ajuste aqui (ex.: 90).
-    private static final double DRIVER_FACING_DEG = 270.0;
+    private static final double DRIVER_FACING_DEG = 90.0;
 
     // Variáveis do chassi (telemetria de diagnóstico)
     private double fieldX;
     private double fieldY;
     private double robotForward;
     private double robotLeft;
-    double p1 = 0.8;
-    double p0 = 0;
+
+    boolean fState = false;
 
     @Override
     public void init() {
 
         // Inicializa Pedro Pathing
         follower = Constants.create(hardwareMap);
+
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        intake2 = hardwareMap.get(DcMotor.class, "intake2");
+        servoE = hardwareMap.get(Servo.class, "f1");
+        servoD = hardwareMap.get(Servo.class, "f2");
+
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        intake2.setDirection(DcMotorSimple.Direction.REVERSE);
+        servoE.setDirection(Servo.Direction.REVERSE);
 
         follower.setPose(new Pose(
                 START_X,
@@ -68,6 +86,7 @@ public class TorretaField extends OpMode {
     public void start() {
         // Passa o controle do chassi para o gamepad
         follower.manual();
+
     }
 
     @Override
@@ -117,6 +136,33 @@ public class TorretaField extends OpMode {
         torreta.addTelemetry(telemetry);
 
         telemetry.update();
+
+        // -------------- Botões -------------------
+
+        if (gamepad1.right_bumper) {
+            intake.setPower(1);
+            intake2.setPower(1);
+
+        } else if (gamepad1.a) {
+            intake.setPower(-0.5);
+            intake2.setPower(-0.5);
+        } else {
+            intake.setPower(0);
+            intake2.setPower(0);
+        }
+
+
+        if (gamepad1.xWasPressed()) {
+            fState = !fState;
+            if (fState) {
+                servoD.setPosition(p1); // Posição ON // direita
+                servoE.setPosition(p1);//esquerda
+            } else {
+                servoD.setPosition(p0); // Posição OFF
+                servoE.setPosition(p0);
+
+            }
+        }
     }
 
     @Override
