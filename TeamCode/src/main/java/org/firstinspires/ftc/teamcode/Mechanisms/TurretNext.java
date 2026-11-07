@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.Mechanisms;
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
@@ -18,7 +18,6 @@ public class TurretNext implements Mechanism {
     private static final String SERVO_NAME = "storreta2";
     private static final String SERVO_NAME1 = "storreta";
     private static final String ENCODER_NAME = "encoder";
-
     private static final double FIELD_MIDDLE_Y = 72.0;
     private static final double LINE_HYSTERESIS = 2.0;
 

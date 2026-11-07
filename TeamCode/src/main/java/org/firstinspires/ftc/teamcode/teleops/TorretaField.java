@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Torreta;
+import org.firstinspires.ftc.teamcode.Mechanisms.Torreta;
 
 /**
  * Teste: TeleOp field centric + mecanismo Torreta (mira automática nas Hives).
