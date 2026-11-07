@@ -16,5 +16,4 @@ public class autoshoot {
 //                        + 1166.72216;
 //        return MathUtils.clamp(speed, 900, 4000) + flywheeloffset;
 //    }
-
 }

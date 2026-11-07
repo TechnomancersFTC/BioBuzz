@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.constants.paths;
+import org.firstinspires.ftc.teamcode.storage.paths;
 import org.firstinspires.ftc.teamcode.Mechanisms.Torreta;
 
 @Autonomous
@@ -54,7 +54,7 @@ public class AutoTeste extends OpMode {
         torreta = new Torreta(hardwareMap, true);
 
         Scheduler.reset();
-        follower.setPose(paths.start);
+        follower.setPose(paths.startAuto);
         follower.update();
     }
 

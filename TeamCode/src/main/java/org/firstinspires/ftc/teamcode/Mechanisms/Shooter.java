@@ -2,15 +2,15 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.configurables.annotations.Configurable;
 
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
+import dev.nextftc.robot.Telemetry;
 
 import static dev.nextftc.units.Units.Radians;
 import static dev.nextftc.units.Units.RadiansPerSecond;
 
-@Configurable
+@Config
 public class Shooter implements Mechanism {
 
     private static final double TICKS_PER_REV = 28.0;
@@ -34,9 +34,11 @@ public class Shooter implements Mechanism {
     );
 
     private double targetVelocity = 0.0;
+
     private boolean running = false;
 
     private void updateGains() {
+
         shooter.getVelocityConstants()
                 .withP(Fkp)
                 .withI(Fki)
@@ -47,6 +49,7 @@ public class Shooter implements Mechanism {
     }
 
     private void applyVelocitySetpoint() {
+
         double targetRadiansPerSecond =
                 targetVelocity * RADIANS_PER_TICK;
 
@@ -57,16 +60,36 @@ public class Shooter implements Mechanism {
 
     @Override
     public void periodic() {
-        if (!running) {
-            return;
-        }
 
+        // Atualiza os coeficientes do PIDF
         updateGains();
 
-        applyVelocitySetpoint();
+        // Logs para verificar alterações pelo Dashboard
+        Telemetry.log("Shooter Fkp", Fkp);
+        Telemetry.log("Shooter Fki", Fki);
+        Telemetry.log("Shooter Fkd", Fkd);
+
+        Telemetry.log("Shooter Fks", Fks);
+        Telemetry.log("Shooter Fkv", Fkv);
+        Telemetry.log("Shooter Fka", Fka);
+
+        Telemetry.log("Shooter Goal", goal);
+
+        Telemetry.log("Shooter Running", running);
+
+        Telemetry.log("Shooter Target", targetVelocity);
+        Telemetry.log("Shooter Velocity", getVelocity());
+        Telemetry.log("Shooter Error", getVelocityError());
+        Telemetry.log("Shooter Power", getPower());
+
+        // Atualiza a velocidade somente quando estiver ligado
+        if (running) {
+            applyVelocitySetpoint();
+        }
     }
 
     public void setVelocity(double velocityTicksPerSec) {
+
         targetVelocity = velocityTicksPerSec;
         running = true;
 
@@ -79,18 +102,23 @@ public class Shooter implements Mechanism {
     }
 
     public void stop() {
+
         running = false;
         targetVelocity = 0.0;
+
         shooter.setThrottle(0.0);
     }
 
     public void testMotor() {
+
         running = false;
         targetVelocity = 0.0;
+
         shooter.setThrottle(0.3);
     }
 
     public double getVelocity() {
+
         return shooter.getEncoderVelocity().getMagnitude()
                 / RADIANS_PER_TICK;
     }

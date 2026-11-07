@@ -6,7 +6,7 @@ import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.constants.paths;
+import org.firstinspires.ftc.teamcode.storage.paths;
 
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Telemetry;

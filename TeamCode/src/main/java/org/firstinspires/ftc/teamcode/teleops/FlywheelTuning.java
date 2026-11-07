@@ -3,13 +3,12 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.constants.paths;
+import org.firstinspires.ftc.teamcode.storage.paths;
 
 import dev.nextftc.robot.Telemetry;
 import dev.nextftc.robot.opmode.NextOpMode;
@@ -64,7 +63,6 @@ public class FlywheelTuning extends NextOpMode {
 
         follower.update();
 
-        // SHOOTER
         boolean aPressed = gamepad1.a;
 
         if (aPressed && !lastA) {
@@ -78,7 +76,6 @@ public class FlywheelTuning extends NextOpMode {
 
         lastA = aPressed;
 
-        // INTAKE
         boolean leftBumperPressed = gamepad1.left_bumper;
 
         if (leftBumperPressed && !lastLeftBumper) {
@@ -91,7 +88,6 @@ public class FlywheelTuning extends NextOpMode {
 
         lastLeftBumper = leftBumperPressed;
 
-        // PEDRO PATHING
         Pose pose = follower.pose();
 
         double targetX;
@@ -113,7 +109,6 @@ public class FlywheelTuning extends NextOpMode {
                 targetY - pose.y()
         );
 
-        // ROBOT TELEMETRY
         Telemetry.log("Robot X", pose.x());
         Telemetry.log("Robot Y", pose.y());
 
@@ -127,7 +122,6 @@ public class FlywheelTuning extends NextOpMode {
                 distanceToGoal
         );
 
-        // SHOOTER TELEMETRY
         Telemetry.log(
                 "Flywheel Running",
                 robot.shooter.isRunning()
@@ -153,7 +147,6 @@ public class FlywheelTuning extends NextOpMode {
                 robot.shooter.getPower()
         );
 
-        // TURRET
         robot.turret.logTelemetry();
     }
 

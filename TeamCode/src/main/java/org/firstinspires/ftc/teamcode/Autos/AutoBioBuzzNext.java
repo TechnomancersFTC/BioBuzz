@@ -3,7 +3,8 @@ package org.firstinspires.ftc.teamcode.Autos;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.constants.paths;
+import org.firstinspires.ftc.teamcode.storage.paths;
+import org.firstinspires.ftc.teamcode.storage.paths;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
@@ -17,6 +18,7 @@ import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+import static org.firstinspires.ftc.teamcode.storage.paths.startAuto;
 
 @NextAutonomous(name = "Auto BioBuzz Next")
 public class AutoBioBuzzNext extends NextOpMode {
@@ -31,7 +33,7 @@ public class AutoBioBuzzNext extends NextOpMode {
 
         follower = Constants.create(hardwareMap);
 
-        follower.setPose(paths.start);
+        follower.setPose(startAuto);
         follower.update();
 
         robot.turret.init(
@@ -109,7 +111,6 @@ public class AutoBioBuzzNext extends NextOpMode {
 
         robot.shooter.stop();
         robot.intake.stop().schedule();
-
         follower.stop();
     }
 }
