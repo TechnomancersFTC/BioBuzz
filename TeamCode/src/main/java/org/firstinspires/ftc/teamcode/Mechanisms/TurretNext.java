@@ -21,11 +21,11 @@ public class TurretNext implements Mechanism {
     private static final double FIELD_MIDDLE_Y = 72.0;
     private static final double LINE_HYSTERESIS = 2.0;
 
-    private static final double HIVE_A_X = 84.5;
-    private static final double HIVE_A_Y = 80.22;
+    private static final double HIVE_A_X = 70.75;
+    private static final double HIVE_A_Y = 84;
 
-    private static final double HIVE_B_X = 84.5;
-    private static final double HIVE_B_Y = 56.83;
+    private static final double HIVE_B_X = 70.75;
+    private static final double HIVE_B_Y = 84;
 
     private static final double TURRET_TEETH = 171.0;
     private static final double ENCODER_TEETH = 60.0;

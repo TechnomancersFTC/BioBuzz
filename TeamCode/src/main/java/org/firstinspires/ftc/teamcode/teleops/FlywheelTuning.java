@@ -1,16 +1,33 @@
-
 package org.firstinspires.ftc.teamcode.teleops;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.math.Pose;
+
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.constants.paths;
 
 import dev.nextftc.robot.Telemetry;
 import dev.nextftc.robot.opmode.NextOpMode;
 import dev.nextftc.robot.opmode.NextTeleop;
 
-@NextTeleop(name = "FlywheelTuning")
+@Config
+@NextTeleop(name = "Flywheel Tuning")
 public class FlywheelTuning extends NextOpMode {
 
     private final Robot robot;
+    private Follower follower;
+
+    private static final double HIVE_A_X = 70.75;
+    private static final double HIVE_A_Y = 84;
+
+    private static final double HIVE_B_X = 70.75;
+    private static final double HIVE_B_Y = 84;
+
+    private static final double FIELD_MIDDLE_Y = 72.0;
+
+    private double distanceToGoal;
 
     private boolean lastA = false;
     private boolean lastLeftBumper = false;
@@ -22,16 +39,23 @@ public class FlywheelTuning extends NextOpMode {
 
     @Override
     public void start() {
+        follower = Constants.create(hardwareMap);
+        follower.setPose(paths.startPoseteleop);
+        follower.update();
+
+        robot.turret.init(hardwareMap, true, follower::pose);
+
         robot.shooter.stop();
         robot.intake.stop().schedule();
     }
 
     @Override
     public void periodic() {
+        follower.update();
 
-        boolean buttonA = gamepad1.a;
+        boolean aPressed = gamepad1.a;
 
-        if (buttonA && !lastA) {
+        if (aPressed && !lastA) {
             if (robot.shooter.isRunning()) {
                 robot.shooter.stop();
             } else {
@@ -39,30 +63,57 @@ public class FlywheelTuning extends NextOpMode {
             }
         }
 
-        lastA = buttonA;
+        lastA = aPressed;
 
-        boolean leftBumper = gamepad1.left_bumper;
+        boolean leftBumperPressed = gamepad1.left_bumper;
 
-        if (leftBumper && !lastLeftBumper) {
+        if (leftBumperPressed && !lastLeftBumper) {
             robot.intake.run().schedule();
         }
 
-        if (!leftBumper && lastLeftBumper) {
+        if (!leftBumperPressed && lastLeftBumper) {
             robot.intake.stop().schedule();
         }
 
-        lastLeftBumper = leftBumper;
+        lastLeftBumper = leftBumperPressed;
+
+        Pose pose = follower.pose();
+
+        double targetX;
+        double targetY;
+
+        if (pose.y() > FIELD_MIDDLE_Y) {
+            targetX = HIVE_A_X;
+            targetY = HIVE_A_Y;
+        } else {
+            targetX = HIVE_B_X;
+            targetY = HIVE_B_Y;
+        }
+
+        distanceToGoal = Math.hypot(
+                targetX - pose.x(),
+                targetY - pose.y()
+        );
+
+        Telemetry.log("Robot X", pose.x());
+        Telemetry.log("Robot Y", pose.y());
+        Telemetry.log("Robot Heading", Math.toDegrees(pose.heading()));
+
+        Telemetry.log("Distance to Goal (in)", distanceToGoal);
 
         Telemetry.log("Flywheel Running", robot.shooter.isRunning());
         Telemetry.log("Target Velocity", robot.shooter.getTarget());
         Telemetry.log("Current Velocity", robot.shooter.getVelocity());
         Telemetry.log("Velocity Error", robot.shooter.getVelocityError());
         Telemetry.log("Motor Power", robot.shooter.getPower());
+
+        robot.turret.logTelemetry();
     }
 
     @Override
     public void end() {
         robot.shooter.stop();
         robot.intake.stop().schedule();
+        robot.turret.stop();
     }
 }

@@ -1,6 +1,4 @@
-
 package org.firstinspires.ftc.teamcode.Mechanisms;
-
 
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
@@ -8,17 +6,20 @@ import dev.nextftc.robot.Mechanism;
 import static dev.nextftc.units.Units.Radians;
 import static dev.nextftc.units.Units.RadiansPerSecond;
 
+import com.acmerobotics.dashboard.config.Config;
+
+@Config
 public class Shooter implements Mechanism {
 
     public static final Shooter INSTANCE = new Shooter();
 
-    public static double Fkp = 0.0009;
-    public static double Fki = 0.0;
-    public static double Fkd = 0.0;
+    public static double Fkp = 0;
+    public static double Fki = 0;
+    public static double Fkd = 0;
 
-    public static double Fks = 0.1;
-    public static double Fkv = 0.00032;
-    public static double Fka = 0.0;
+    public static double Fks = 0;
+    public static double Fkv = 0;
+    public static double Fka = 0;
 
     public static double goal = 1400;
 
@@ -27,27 +28,27 @@ public class Shooter implements Mechanism {
             Radians.of(1.0)
     );
 
-    private double targetVelocity = 0.0;
+    private double targetVelocity = 0;
     private boolean running = false;
 
     public void initialize() {
         updateGains();
-        shooter.setThrottle(0.0);
+        shooter.setThrottle(0);
     }
 
     @Override
     public void periodic() {
 
         if (!running) {
-            shooter.setThrottle(0.0);
+            shooter.setThrottle(0);
             return;
         }
 
+        updateGains();
         shooter.update();
     }
 
     public void updateGains() {
-
         shooter.getVelocityConstants()
                 .withP(Fkp)
                 .withI(Fki)
@@ -57,13 +58,14 @@ public class Shooter implements Mechanism {
                 .withA(Fka);
     }
 
-    public void setVelocity(double velocityTicksPerSec) {
-
-        targetVelocity = velocityTicksPerSec;
+    public void setVelocity(double velocity) {
+        targetVelocity = velocity;
         running = true;
 
+        updateGains();
+
         shooter.setVelocitySetpoint(
-                RadiansPerSecond.of(velocityTicksPerSec)
+                RadiansPerSecond.of(velocity)
         );
     }
 
@@ -71,13 +73,10 @@ public class Shooter implements Mechanism {
         setVelocity(goal);
     }
 
-    // Desliga
     public void stop() {
-
         running = false;
-        targetVelocity = 0.0;
-
-        shooter.setThrottle(0.0);
+        targetVelocity = 0;
+        shooter.setThrottle(0);
     }
 
     public double getTarget() {
