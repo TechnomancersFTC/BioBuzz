@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.Autos;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -17,8 +15,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.storage.paths;
-import org.firstinspires.ftc.teamcode.subsystems.Torreta;
+import org.firstinspires.ftc.teamcode.constants.paths;
+import org.firstinspires.ftc.teamcode.Mechanisms.Torreta;
 
 @Autonomous
 public class AutoTeste extends OpMode {

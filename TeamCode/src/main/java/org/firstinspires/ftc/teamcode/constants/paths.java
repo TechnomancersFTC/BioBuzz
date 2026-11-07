@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.storage;
+package org.firstinspires.ftc.teamcode.constants;
 
 import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
@@ -10,8 +10,7 @@ public class paths{
 
     //Pontos
     private static final PoseFactory poseFactory = PoseFactory.degrees();
-    public static final Pose startPoseteleop = poseFactory.of(9.4, 7.8, 270);
-
+    public static final Pose startPoseteleop = poseFactory.of(9.4, 7.8, 90);
     public static final Pose start = poseFactory.of(87.4, 133.8, 270);
     private static final Pose point1 = poseFactory.of(133.8197, 133.8983, 0);
     private static final Pose point2Start = poseFactory.of(133.8197, 133.8983, 270);

@@ -1,10 +1,8 @@
-package org.firstinspires.ftc.teamcode.storage;
-
-import androidx.core.math.MathUtils;
+package org.firstinspires.ftc.teamcode.constants;
 
 
 public class autoshoot {
-    public static double flywheeloffset = 100;
+    public static double flywheeloffset = 0;
     public static double distoffset = 0;
     public static void SetFlywheelOffset(double offset) {
         flywheeloffset = offset;

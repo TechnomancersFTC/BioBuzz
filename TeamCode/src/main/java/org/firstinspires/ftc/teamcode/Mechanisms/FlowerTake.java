@@ -1,0 +1,28 @@
+package org.firstinspires.ftc.teamcode.Mechanisms;
+
+import com.pedropathing.ivy.Command;
+
+import dev.nextftc.hardware.actuators.NextServo;
+
+import dev.nextftc.robot.Mechanism;
+
+
+public class FlowerTake implements Mechanism {
+
+    private final NextServo servo1 = new NextServo("clawServo1");
+    private final NextServo servo2 = new NextServo("clawServo2");
+
+    public Command open() {
+        return instant(() -> {
+            servo1.setPosition(0);
+            servo2.setPosition(1);
+        });
+    }
+
+    public Command close() {
+        return instant(() -> {
+            servo1.setPosition(1);
+            servo2.setPosition(0);
+        });
+    }
+}

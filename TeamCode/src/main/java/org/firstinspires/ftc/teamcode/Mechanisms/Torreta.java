@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.Mechanisms;
 
 import com.pedropathing.math.Pose;
 
@@ -8,8 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.util.function.BooleanSupplier;
 
 /**
  * Mecanismo da torreta com mira automática nas Hives.

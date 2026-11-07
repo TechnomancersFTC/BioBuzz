@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.teleops;
 
 import com.pedropathing.follower.Follower;
@@ -5,13 +6,14 @@ import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.storage.paths;
+import org.firstinspires.ftc.teamcode.constants.paths;
 
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Telemetry;
 import dev.nextftc.robot.drive.DriveCommands;
 import dev.nextftc.robot.opmode.NextOpMode;
 import dev.nextftc.robot.opmode.NextTeleop;
+import dev.nextftc.robot.triggers.CommandGamepad;
 
 @NextTeleop(name = "TeleOp Turret Next")
 public class TeleOpTurretNext extends NextOpMode {
@@ -20,9 +22,7 @@ public class TeleOpTurretNext extends NextOpMode {
     private static final String FRONT_RIGHT = "fr";
     private static final String BACK_LEFT = "bl";
     private static final String BACK_RIGHT = "br";
-
     private static final Pose START_POSE = paths.startPoseteleop;
-
     private static final boolean RESET_TURRET_ENCODER = true;
 
     private final Robot robot;
@@ -46,13 +46,29 @@ public class TeleOpTurretNext extends NextOpMode {
         follower.setPose(START_POSE);
         follower.update();
 
-        robot.turret.init(hardwareMap, RESET_TURRET_ENCODER, follower::pose);
+        robot.turret.init(
+                hardwareMap,
+                RESET_TURRET_ENCODER,
+                follower::pose
+        );
     }
 
     @Override
     public void start() {
+
+        CommandGamepad gp1 = new CommandGamepad(gamepad1);
+
+        gp1.leftBumper().whileTrue(robot.intake.run());
+        gp1.leftBumper().onFalse(robot.intake.stop());
+
+        gp1.a().whileTrue(robot.intake.reverse());
+        gp1.a().onFalse(robot.intake.stop());
+
         DriveCommands.mecanumDriveFieldCentric(
-                frontLeft, frontRight, backLeft, backRight,
+                frontLeft,
+                frontRight,
+                backLeft,
+                backRight,
                 gamepad1,
                 () -> follower.pose().heading()
         ).schedule();
@@ -65,7 +81,9 @@ public class TeleOpTurretNext extends NextOpMode {
         boolean bumper = gamepad1.right_bumper;
 
         if (bumper && !lastBumper) {
-            robot.turret.setAutoAimEnabled(!robot.turret.isAutoAimEnabled());
+            robot.turret.setAutoAimEnabled(
+                    !robot.turret.isAutoAimEnabled()
+            );
         }
 
         lastBumper = bumper;
@@ -74,8 +92,15 @@ public class TeleOpTurretNext extends NextOpMode {
 
         Telemetry.log("X", pose.x());
         Telemetry.log("Y", pose.y());
-        Telemetry.log("Heading (deg)", Math.toDegrees(pose.heading()));
-        Telemetry.log("Auto Aim", robot.turret.isAutoAimEnabled());
+        Telemetry.log(
+                "Heading (deg)",
+                Math.toDegrees(pose.heading())
+        );
+
+        Telemetry.log(
+                "Auto Aim",
+                robot.turret.isAutoAimEnabled()
+        );
 
         robot.turret.logTelemetry();
     }
@@ -83,5 +108,6 @@ public class TeleOpTurretNext extends NextOpMode {
     @Override
     public void end() {
         robot.turret.stop();
+        robot.intake.stop().schedule();
     }
 }
