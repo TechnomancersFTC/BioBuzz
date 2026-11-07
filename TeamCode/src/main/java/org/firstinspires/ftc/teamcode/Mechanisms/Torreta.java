@@ -38,12 +38,12 @@ public class Torreta {
     private static final double LINE_HYSTERESIS = 2.0;
 
     // Hive A: a que começa levantada (lado Y > 72)
-    private static final double HIVE_A_X = 84.5;
-    private static final double HIVE_A_Y = 80.22;
+    private static final double HIVE_A_X = 70.75;
+    private static final double HIVE_A_Y = 70.75;
 
     // Hive B: a oposta (lado Y < 72)
-    private static final double HIVE_B_X = 84.5;
-    private static final double HIVE_B_Y = 56.83;
+    private static final double HIVE_B_X = 70.75;
+    private static final double HIVE_B_Y = 70.75;
 
     // Engrenagens
     private static final double TURRET_TEETH = 171.0;
