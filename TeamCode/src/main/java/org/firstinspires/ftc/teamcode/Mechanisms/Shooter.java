@@ -2,7 +2,6 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
 import com.acmerobotics.dashboard.config.Config;
-
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
 import dev.nextftc.robot.Telemetry;
@@ -18,20 +17,25 @@ public class Shooter implements Mechanism {
     private static final double RADIANS_PER_TICK =
             (2.0 * Math.PI) / TICKS_PER_REV;
 
-    public static double Fkp = 0.0;
-    public static double Fki = 0.0;
+    public static double Fkp = 0.0008;
+    public static double Fki = 0.00115;
     public static double Fkd = 0.0;
 
-    public static double Fks = 0.0;
-    public static double Fkv = 0.0;
-    public static double Fka = 0.0;
+    public static double Fks = 0.05;
+    public static double Fkv = 0.0022;
+    public static double Fka = 0.01;
 
-    public static double goal = 1400.0;
+    public static double goal = 1220.0;
 
     private final NextMotor shooter = new NextMotor(
             "shooter",
             Radians.of(RADIANS_PER_TICK)
+
     );
+    {
+        shooter.setDirection(NextMotor.Direction.REVERSE);
+    }
+
 
     private double targetVelocity = 0.0;
 
