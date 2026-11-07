@@ -22,7 +22,7 @@ public class Shooter implements Mechanism {
     public static double Fkd = 0.0;
 
     public static double Fks = 0.05;
-    public static double Fkv = 0.0022;
+    public static double Fkv = 0.0024;
     public static double Fka = 0.01;
 
     public static double goal = 1220.0;
