@@ -1,14 +1,18 @@
-
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import com.acmerobotics.dashboard.config.Config;
-
+import dev.nextftc.hardware.actuators.NextMotor.Direction;
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
 import dev.nextftc.robot.Telemetry;
 
 import static dev.nextftc.units.Units.Radians;
 import static dev.nextftc.units.Units.RadiansPerSecond;
+
+import com.acmerobotics.dashboard.config.Config;
+
+import org.firstinspires.ftc.teamcode.constants.autoshoot;
+
+import java.util.function.DoubleSupplier;
 
 @Config
 public class Shooter implements Mechanism {
@@ -18,27 +22,33 @@ public class Shooter implements Mechanism {
     private static final double RADIANS_PER_TICK =
             (2.0 * Math.PI) / TICKS_PER_REV;
 
-    public static double Fkp = 0.0;
-    public static double Fki = 0.0;
-    public static double Fkd = 0.0;
+    public static volatile double Fkp = 0.05;
+    public static volatile double Fki = 0.006;
+    public static volatile double Fkd = 0.0;
 
-    public static double Fks = 0.0;
-    public static double Fkv = 0.0;
-    public static double Fka = 0.0;
+    public static volatile double Fks = 0.09;
+    public static volatile double Fkv = 0.00148;
+    public static volatile double Fka = .9;
 
-    public static double goal = 1400.0;
+    public static volatile double goal = 1400.0;
 
     private final NextMotor shooter = new NextMotor(
             "shooter",
             Radians.of(RADIANS_PER_TICK)
     );
 
-    private double targetVelocity = 0.0;
+    {
+        shooter.setDirection(Direction.FORWARD);
+    }
 
+    private double targetVelocity = 0.0;
     private boolean running = false;
 
-    private void updateGains() {
+    // modo automático por distância
+    private DoubleSupplier distanceSupplier = null;
+    private boolean autoDistance = false;
 
+    private void updateGains() {
         shooter.getVelocityConstants()
                 .withP(Fkp)
                 .withI(Fki)
@@ -49,7 +59,6 @@ public class Shooter implements Mechanism {
     }
 
     private void applyVelocitySetpoint() {
-
         double targetRadiansPerSecond =
                 targetVelocity * RADIANS_PER_TICK;
 
@@ -61,10 +70,13 @@ public class Shooter implements Mechanism {
     @Override
     public void periodic() {
 
-        // Atualiza os coeficientes do PIDF
         updateGains();
 
-        // Logs para verificar alterações pelo Dashboard
+        // atualiza o alvo em tempo real pela distância até o gol
+        if (autoDistance && distanceSupplier != null) {
+            targetVelocity = autoshoot.flywheelSpeed(distanceSupplier.getAsDouble());
+        }
+
         Telemetry.log("Shooter Fkp", Fkp);
         Telemetry.log("Shooter Fki", Fki);
         Telemetry.log("Shooter Fkd", Fkd);
@@ -76,20 +88,19 @@ public class Shooter implements Mechanism {
         Telemetry.log("Shooter Goal", goal);
 
         Telemetry.log("Shooter Running", running);
+        Telemetry.log("Shooter AutoDist", autoDistance);
 
         Telemetry.log("Shooter Target", targetVelocity);
         Telemetry.log("Shooter Velocity", getVelocity());
         Telemetry.log("Shooter Error", getVelocityError());
         Telemetry.log("Shooter Power", getPower());
 
-        // Atualiza a velocidade somente quando estiver ligado
         if (running) {
             applyVelocitySetpoint();
         }
     }
 
     public void setVelocity(double velocityTicksPerSec) {
-
         targetVelocity = velocityTicksPerSec;
         running = true;
 
@@ -97,28 +108,39 @@ public class Shooter implements Mechanism {
         applyVelocitySetpoint();
     }
 
+    /** Velocidade fixa (campo "goal" do Dashboard). */
     public void shoot() {
+        autoDistance = false;
+        distanceSupplier = null;
         setVelocity(goal);
     }
 
-    public void stop() {
+    /** Liga o shooter e mantém a velocidade atualizada pela distância até o gol. */
+    public void shootAuto(DoubleSupplier goalDistance) {
+        distanceSupplier = goalDistance;
+        autoDistance = true;
+        setVelocity(autoshoot.flywheelSpeed(goalDistance.getAsDouble()));
+    }
 
+    public void stop() {
         running = false;
+        autoDistance = false;
+        distanceSupplier = null;
         targetVelocity = 0.0;
 
         shooter.setThrottle(0.0);
     }
 
     public void testMotor() {
-
         running = false;
+        autoDistance = false;
+        distanceSupplier = null;
         targetVelocity = 0.0;
 
         shooter.setThrottle(0.3);
     }
 
     public double getVelocity() {
-
         return shooter.getEncoderVelocity().getMagnitude()
                 / RADIANS_PER_TICK;
     }
@@ -137,5 +159,9 @@ public class Shooter implements Mechanism {
 
     public boolean isRunning() {
         return running;
+    }
+
+    public boolean isAutoDistance() {
+        return autoDistance;
     }
 }

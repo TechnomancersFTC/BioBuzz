@@ -9,49 +9,23 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-/**
- * Mecanismo da torreta com mira automática nas Hives.
- *
- * Não é um OpMode e não chama follower.update(): quem é dono do Follower
- * (TeleOp ou Autônomo) atualiza a odometria e passa a pose para update().
- *
- * Uso típico (no loop do OpMode):
- *
- *   follower.update();
- *   torreta.update(follower.pose());
- *
- * Importante: update() precisa rodar em cada ciclo do loop, inclusive
- * enquanto o autônomo espera algo. Evite sleep()/while bloqueantes.
- *
- * Mira em movimento: o controle é um P mais um feedforward de velocidade
- * (KV). O P sozinho só gera potência quando já existe erro, então com o
- * robô andando/girando a torreta fica sempre atrasada. O feedforward mede
- * o quanto o alvo está girando (graus/s) e já aplica essa potência.
- */
+
 public class Torreta {
 
-    // Nomes no hardwareMap
     private static final String SERVOb_NAME = "storreta2";
     private static final String SERVOa_NAME = "storreta";
     private static final String ENCODER_NAME = "encoder";
 
-    // Linha do meio do campo (no visualizer do Pedro o centro é (72, 72))
     private static final double FIELD_MIDDLE_Y = 72.0;
 
-    // Histerese da linha (polegadas): só troca de Hive depois de passar
-    // da linha por essa distância, para não ficar alternando em cima dela.
-    // Use 0 para trocar exatamente em Y = 72.
     private static final double LINE_HYSTERESIS = 2.0;
 
-    // Hive A: a que começa levantada (lado Y > 72)
     private static final double HIVE_A_X = 70.75;
-    private static final double HIVE_A_Y = 70.75;
+    private static final double HIVE_A_Y = 84;
 
-    // Hive B: a oposta (lado Y < 72)
     private static final double HIVE_B_X = 70.75;
-    private static final double HIVE_B_Y = 70.75;
+    private static final double HIVE_B_Y = 84;
 
-    // Engrenagens
     private static final double TURRET_TEETH = 171.0;
     private static final double ENCODER_TEETH = 60.0;
     private static final double ENCODER_CPR = 8192.0;
@@ -62,7 +36,6 @@ public class Torreta {
     private static final double DEG_PER_TICK =
             360.0 / TICKS_PER_REV;
 
-    // Sinais (inverter os dois juntos)
     private static final double SERVO_SIGN = -1.0;
     private static final double ENCODER_SIGN = -1.0;
 

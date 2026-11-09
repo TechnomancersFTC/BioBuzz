@@ -1,8 +1,9 @@
 
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 
@@ -13,11 +14,10 @@ import org.firstinspires.ftc.teamcode.storage.paths;
 import dev.nextftc.robot.Telemetry;
 import dev.nextftc.robot.opmode.NextOpMode;
 import dev.nextftc.robot.opmode.NextTeleop;
-
 @Config
+
 @NextTeleop(name = "Flywheel Tuning")
 public class FlywheelTuning extends NextOpMode {
-
     private final Robot robot;
 
     private Follower follower;

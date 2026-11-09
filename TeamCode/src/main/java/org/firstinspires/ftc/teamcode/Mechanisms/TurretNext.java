@@ -1,5 +1,7 @@
+
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 
@@ -13,53 +15,47 @@ import dev.nextftc.hardware.actuators.NextCRServo;
 import dev.nextftc.robot.Mechanism;
 import dev.nextftc.robot.Telemetry;
 
+@Config
 public class TurretNext implements Mechanism {
 
-    private static final String SERVO_NAME = "storreta2";
-    private static final String SERVO_NAME1 = "storreta";
-    private static final String ENCODER_NAME = "encoder";
-    private static final double FIELD_MIDDLE_Y = 72.0;
-    private static final double LINE_HYSTERESIS = 2.0;
+    public static String SERVO_NAME = "storreta2";
+    public static String SERVO_NAME1 = "storreta";
+    public static String ENCODER_NAME = "encoder";
 
-    private static final double HIVE_A_X = 70.75;
-    private static final double HIVE_A_Y = 84;
+    public static double FIELD_MIDDLE_Y = 72.0;
+    public static double LINE_HYSTERESIS = 2.0;
 
-    private static final double HIVE_B_X = 70.75;
-    private static final double HIVE_B_Y = 84;
+    public static double HIVE_A_X = 70.75;
+    public static double HIVE_A_Y = 84.0;
 
-    private static final double TURRET_TEETH = 171.0;
-    private static final double ENCODER_TEETH = 60.0;
-    private static final double ENCODER_CPR = 8192.0;
+    public static double HIVE_B_X = 70.75;
+    public static double HIVE_B_Y = 84.0;
 
-    private static final double TICKS_PER_REV =
-            ENCODER_CPR * TURRET_TEETH / ENCODER_TEETH;
+    public static double TURRET_TEETH = 171.0;
+    public static double ENCODER_TEETH = 60.0;
+    public static double ENCODER_CPR = 8192.0;
 
-    private static final double DEG_PER_TICK = 360.0 / TICKS_PER_REV;
+    public static double SERVO_SIGN = -1.0;
+    public static double ENCODER_SIGN = -1.0;
 
-    private static final double SERVO_SIGN = -1.0;
-    private static final double ENCODER_SIGN = -1.0;
+    public static double TURRET_MIN_DEG = -180.0;
+    public static double TURRET_MAX_DEG = 180.0;
+    public static double SAFETY_MARGIN_DEG = 3.0;
 
-    private static final double TURRET_MIN_DEG = -180.0;
-    private static final double TURRET_MAX_DEG = 180.0;
-
-    private static final double SAFETY_MARGIN_DEG = 3.0;
-
-    private static final double KP = 5;
-    private static final double KI = 2;
-    private static final double KD = 0.0;
-
-    private static final double MAX_POWER = 1;
-    private static final double DEADBAND = 1.0;
-    private static final double ON_TARGET_TOLERANCE_DEG = 2.0;
+    public static double KP = 1;
+    public static double KI = .02;
+    public static double KD = 0.06;
+    public static double MAX_POWER = 1.0;
+    public static double DEADBAND = 1.0;
+    public static double ON_TARGET_TOLERANCE_DEG = 2.0;
 
     private final NextCRServo servo = new NextCRServo(SERVO_NAME);
     private final NextCRServo servo1 = new NextCRServo(SERVO_NAME1);
 
     private DcMotorEx encoder;
-
     private Supplier<Pose> poseSupplier;
 
-    private final SimplePID pid = new SimplePID(KP, KI, KD);
+    private final SimplePID pid = new SimplePID();
 
     private boolean autoAimEnabled = true;
     private boolean poseReceived = false;
@@ -108,7 +104,10 @@ public class TurretNext implements Mechanism {
         double robotY = robot.y();
         double robotHeading = Math.toDegrees(robot.heading());
 
-        currentAngle = ENCODER_SIGN * encoder.getCurrentPosition() * DEG_PER_TICK;
+        double ticksPerRev = ENCODER_CPR * TURRET_TEETH / ENCODER_TEETH;
+        double degreesPerTick = 360.0 / ticksPerRev;
+
+        currentAngle = ENCODER_SIGN * encoder.getCurrentPosition() * degreesPerTick;
 
         if (!poseReceived) {
             aimingHiveA = robotY > FIELD_MIDDLE_Y;
@@ -122,7 +121,9 @@ public class TurretNext implements Mechanism {
         double hiveX = aimingHiveA ? HIVE_A_X : HIVE_B_X;
         double hiveY = aimingHiveA ? HIVE_A_Y : HIVE_B_Y;
 
-        fieldAngle = Math.toDegrees(Math.atan2(hiveY - robotY, hiveX - robotX));
+        fieldAngle = Math.toDegrees(
+                Math.atan2(hiveY - robotY, hiveX - robotX)
+        );
 
         targetAngle = clip(
                 wrapAngle(fieldAngle - robotHeading),
@@ -225,7 +226,7 @@ public class TurretNext implements Mechanism {
     }
 
     public void logTelemetry() {
-        Telemetry.log("Hive Alvo", aimingHiveA ? "A (Y > 72)" : "B (Y < 72)");
+        Telemetry.log("Hive Alvo", aimingHiveA ? "A" : "B");
         Telemetry.log("Field Angle", fieldAngle);
         Telemetry.log("Turret Angle", currentAngle);
         Telemetry.log("Turret Target", targetAngle);
@@ -233,26 +234,18 @@ public class TurretNext implements Mechanism {
         Telemetry.log("On Target", isOnTarget());
         Telemetry.log("Servo Power", power);
         Telemetry.log("Limit Blocked", limitBlocked);
+        Telemetry.log("Auto Aim", autoAimEnabled);
     }
 
     private static class SimplePID {
-
-        private final double kP;
-        private final double kI;
-        private final double kD;
 
         private double integral;
         private double lastError;
         private long lastTimeNs;
         private boolean first = true;
 
-        SimplePID(double kP, double kI, double kD) {
-            this.kP = kP;
-            this.kI = kI;
-            this.kD = kD;
-        }
-
         double calculate(double error) {
+
             long now = System.nanoTime();
             double dt = first ? 0.0 : (now - lastTimeNs) / 1e9;
 
@@ -267,7 +260,7 @@ public class TurretNext implements Mechanism {
             lastError = error;
             lastTimeNs = now;
 
-            return kP * error + kI * integral + kD * derivative;
+            return KP * error + KI * integral + KD * derivative;
         }
 
         void reset() {

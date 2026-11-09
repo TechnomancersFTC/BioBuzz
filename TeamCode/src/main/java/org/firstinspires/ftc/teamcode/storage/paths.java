@@ -10,7 +10,7 @@ public class paths{
 
     //Pontos
     private static final PoseFactory poseFactory = PoseFactory.degrees();
-    public static final Pose startPoseteleop = poseFactory.of(9.4, 7.8, 90);
+    public static final Pose startPoseteleop = poseFactory.of(6, 134, 270);
     public static final Pose startAuto = poseFactory.of(87.4, 133.8, 270);
     private static final Pose intakeGarden = poseFactory.of(133.8197, 133.8983, 0);
     private static final Pose flower1 = poseFactory.of(95.2141, 20, 270);

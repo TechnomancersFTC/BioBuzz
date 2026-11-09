@@ -3,12 +3,12 @@ repositories {
     mavenCentral()
 
     maven {
-        url 'https://repo.dairy.foundation/releases'
+        url 'https://repo.dairy.foundation/releases/'
     }
 
-    maven {
-        url 'https://mymaven.bylazar.com/releases'
-    }
+    // maven {
+    //     url 'https://mymaven.bylazar.com/releases/'
+    // }
 
     maven {
         url 'https://maven.brott.dev/'
@@ -36,7 +36,10 @@ dependencies {
     implementation 'com.pedropathing:tuning:1.0.3'
     implementation 'com.pedropathing.ivy:pedro:1.1.1'
 
-    implementation 'com.acmerobotics.dashboard:dashboard:0.6.0'
+    // implementation 'com.acmerobotics.dashboard:dashboard:0.6.0'
 
-    //implementation 'com.bylazar:fullpanels:1.0.19'
+    //implementation 'com.bylazar:fullpanels:1.0.15'
+
+    implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+
 }
