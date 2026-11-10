@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.Autos;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static com.pedropathing.ivy.commands.Commands.waitUntil;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
-import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -15,17 +13,22 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.storage.paths;
-import org.firstinspires.ftc.teamcode.subsystems.Torreta;
+import org.firstinspires.ftc.teamcode.Mechanisms.Torreta;
 
 @Autonomous
 public class AutoTeste extends OpMode {
 
     private Follower follower;
     private DcMotor fl, bl, br, fr, shooter, intake, intake2;
+    private Servo servoE, servoD;
     private Torreta torreta;
+    double p1 = 0.85;
+    double p0 = 0;
+    double p3 = 0.4;
 
     @Override
     public void init() {
@@ -38,17 +41,20 @@ public class AutoTeste extends OpMode {
         shooter = hardwareMap.get(DcMotor.class, "shooter");
         intake = hardwareMap.get(DcMotor.class, "intake");
         intake2 = hardwareMap.get(DcMotor.class, "intake2");
+        servoE = hardwareMap.get(Servo.class, "f1");
+        servoD = hardwareMap.get(Servo.class, "f2");
 
         br.setDirection(DcMotorSimple.Direction.REVERSE);
         fr.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
-        intake2.setDirection(DcMotorSimple.Direction.REVERSE);
+        intake2.setDirection(DcMotorSimple.Direction.FORWARD);
+        servoD.setDirection(Servo.Direction.REVERSE);
 
         torreta = new Torreta(hardwareMap, true);
 
         Scheduler.reset();
-        follower.setPose(paths.start);
+        follower.setPose(paths.startAuto);
         follower.update();
     }
 
@@ -95,18 +101,41 @@ public class AutoTeste extends OpMode {
         });
     }
 
+    public Command flowerIntake(){
+        return instant(() -> {
+           servoE.setPosition(p1);
+           servoD.setPosition(p1);
+        });
+    }
+
+    public Command flowerShoot(){
+        return instant(() -> {
+            servoE.setPosition(p3);
+            servoD.setPosition(p3);
+        });
+    }
+    public Command flowerCima(){
+        return instant(() -> {
+            servoE.setPosition(p0);
+            servoD.setPosition(p0);
+        });
+    }
+
     public Command autoRoutine() {
         return sequential(
+
                 waitMs(2000),
                 ligarIntake(),
                 waitMs(700),
                 follow(follower, paths.path1()),
                 desligarIntake(),
+//                flowerIntake(),
                 follow(follower, paths.path2()),
                 ligarIntake(),
                 waitMs(2000),
                 desligarIntake(),
                 follow(follower, paths.path3()),
+//                flowerShoot(),
                 follow(follower, paths.path4()),
                 ligarIntake(),
                 waitMs(2000),
