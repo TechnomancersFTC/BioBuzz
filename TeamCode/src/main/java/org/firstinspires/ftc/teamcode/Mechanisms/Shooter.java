@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
-<<<<<<< HEAD
-=======
 
->>>>>>> 85a84898809d1b28a8fdf1cba6b3a7c1f1b694ae
+
+
 import dev.nextftc.hardware.actuators.NextMotor.Direction;
 import com.acmerobotics.dashboard.config.Config;
 import dev.nextftc.hardware.actuators.NextMotor;
@@ -34,7 +33,7 @@ public class Shooter implements Mechanism {
 
     public static volatile double goal = 1400.0;
 
-<<<<<<< HEAD
+
 //    public static double Fkp = 0.0008;
 //    public static double Fki = 0.00115;
 //    public static double Fkd = 0.0;
@@ -44,10 +43,9 @@ public class Shooter implements Mechanism {
 //    public static double Fka = 0.01;
 //
 //    public static double goal = 1220.0;
-=======
+
     public static volatile double RADIAL_GAIN = 1.0;
     public static volatile double RADIAL_MAX = 200.0;
->>>>>>> 85a84898809d1b28a8fdf1cba6b3a7c1f1b694ae
 
 
     private final NextMotor shooter = new NextMotor(

@@ -39,35 +39,34 @@ public class PlanB extends OpMode {
     }
     private Command autoRoutine() {
         return sequential(
-                instant(() -> Lock.setPosition(0.2))
-//                waitMs(4000),
-//                instant(() -> intake.setPower(0.7)),
-//                instant(() -> intake2.setPower(0.7)),
-//                waitMs(100),
-//                instant(() -> intake.setPower(0)),
-//                instant(() -> intake2.setPower(0)),
-//                waitMs(1000),
-//                instant(() -> intake.setPower(1)),
-//                instant(() -> intake2.setPower(1)),
-//                waitMs(100),
-//                instant(() -> intake.setPower(0)),
-//                instant(() -> intake2.setPower(0)),
-//                waitMs(2500),
-//                instant(() -> intake2.setPower(1)),
-//                instant(() -> intake.setPower(1)),
-//                waitMs(100),
-//                instant(() -> intake.setPower(0)),
-//                instant(() -> intake2.setPower(0)),
-//                waitMs(3000),
-//                instant(() -> intake.setPower(1)),
-//                instant(() -> intake2.setPower(1)),
-//                waitMs(100),
-//                instant(() -> intake.setPower(0)),
-//                instant(() -> intake2.setPower(0)),
-//                waitMs(500),
-//                follow(follower, startToScore()),
-//                follow(follower, park()),
-//                instant(() -> shooter.setPower(0))
+                waitMs(4000),
+                instant(() -> intake.setPower(1)),
+                instant(() -> intake2.setPower(1)),
+                waitMs(100),
+                instant(() -> intake.setPower(0)),
+                instant(() -> intake2.setPower(0)),
+                waitMs(1000),
+                instant(() -> intake.setPower(1)),
+                instant(() -> intake2.setPower(1)),
+                waitMs(100),
+                instant(() -> intake.setPower(0)),
+                instant(() -> intake2.setPower(0)),
+                waitMs(2500),
+                instant(() -> intake2.setPower(1)),
+                instant(() -> intake.setPower(1)),
+                waitMs(100),
+                instant(() -> intake.setPower(0)),
+                instant(() -> intake2.setPower(0)),
+                waitMs(3000),
+                instant(() -> intake.setPower(1)),
+                instant(() -> intake2.setPower(1)),
+                waitMs(100),
+                instant(() -> intake.setPower(0)),
+                instant(() -> intake2.setPower(0)),
+                waitMs(500),
+                follow(follower, startToScore()),
+                follow(follower, park()),
+                instant(() -> shooter.setPower(0))
         );
     }
 
@@ -93,7 +92,7 @@ public class PlanB extends OpMode {
 
     @Override
     public void loop() {
-        shooter.setPower(-0.61);
+        shooter.setPower(-0.625);
         follower.update();
         Scheduler.execute();
         telemetry.addData("X", follower.pose().x());
