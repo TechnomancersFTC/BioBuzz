@@ -1,10 +1,5 @@
-<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/subsystems/TurretNext.java
-
-package org.firstinspires.ftc.teamcode.subsystems;
-=======
->>>>>>> 3ffef2016f09a4d9f2fd994588ea569bbc331d1f:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Mechanisms/TurretNext.java
-
 package org.firstinspires.ftc.teamcode.Mechanisms;
+
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Command;
@@ -291,7 +286,3 @@ public class TurretNext implements Mechanism {
         return Math.max(min, Math.min(max, value));
     }
 }
-<<<<<<< HEAD:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/subsystems/TurretNext.java
-
-=======
->>>>>>> 3ffef2016f09a4d9f2fd994588ea569bbc331d1f:TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Mechanisms/TurretNext.java

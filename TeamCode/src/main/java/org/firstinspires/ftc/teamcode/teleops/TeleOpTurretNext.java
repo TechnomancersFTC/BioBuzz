@@ -69,6 +69,7 @@ public class TeleOpTurretNext extends NextOpMode {
 
     private Command lockAndIntakeSequence() {
         return sequential(
+
                 robot.intake.reverse(),
                 waitMs(reverse),
                 robot.intake.stop(),

@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
-
-<<<<<<< HEAD
 import dev.nextftc.hardware.actuators.NextMotor.Direction;
-=======
 import com.acmerobotics.dashboard.config.Config;
->>>>>>> da171e284986bf8d80c7065937b9b91268ec162d
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
 import dev.nextftc.robot.Telemetry;
@@ -26,7 +22,6 @@ public class Shooter implements Mechanism {
     private static final double RADIANS_PER_TICK =
             (2.0 * Math.PI) / TICKS_PER_REV;
 
-<<<<<<< HEAD
     public static volatile double Fkp = 0.05;
     public static volatile double Fki = 0.006;
     public static volatile double Fkd = 0.0;
@@ -36,17 +31,17 @@ public class Shooter implements Mechanism {
     public static volatile double Fka = .9;
 
     public static volatile double goal = 1400.0;
-=======
-    public static double Fkp = 0.0008;
-    public static double Fki = 0.00115;
-    public static double Fkd = 0.0;
 
-    public static double Fks = 0.05;
-    public static double Fkv = 0.0024;
-    public static double Fka = 0.01;
+//    public static double Fkp = 0.0008;
+//    public static double Fki = 0.00115;
+//    public static double Fkd = 0.0;
+//
+//    public static double Fks = 0.05;
+//    public static double Fkv = 0.0024;
+//    public static double Fka = 0.01;
+//
+//    public static double goal = 1220.0;
 
-    public static double goal = 1220.0;
->>>>>>> da171e284986bf8d80c7065937b9b91268ec162d
 
     private final NextMotor shooter = new NextMotor(
             "shooter",
@@ -65,7 +60,6 @@ public class Shooter implements Mechanism {
     private double targetVelocity = 0.0;
     private boolean running = false;
 
-    // modo automático por distância
     private DoubleSupplier distanceSupplier = null;
     private boolean autoDistance = false;
 
