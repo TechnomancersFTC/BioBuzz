@@ -18,7 +18,6 @@ import dev.nextftc.robot.opmode.NextTeleop;
 import dev.nextftc.robot.triggers.CommandGamepad;
 
 import static com.pedropathing.ivy.commands.Commands.*;
-import static com.pedropathing.ivy.groups.Groups.race;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 @Config
 @NextTeleop(name = "TeleOp Turret Next")
@@ -34,7 +33,7 @@ public class TeleOpTurretNext extends NextOpMode {
 
     private static final double GOAL_X = 70.75;
     private static final double GOAL_Y = 84;
-    public static volatile double reverse = 0.05;
+    public static volatile double reverse = 0.2;
 
     private final Robot robot;
     private final Follower follower;
@@ -93,7 +92,7 @@ public class TeleOpTurretNext extends NextOpMode {
 
         gp1.a().whileTrue(robot.intake.reverse());
         gp1.a().onFalse(robot.intake.stop());
-
+        gp1.b().onTrue(robot.turret.toggleShootWhileMoving());
         gp1.rightBumper().onTrue(lockAndIntakeSequence());
         DriveCommands.mecanumDriveFieldCentric(
                 frontLeft,
