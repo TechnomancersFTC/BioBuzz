@@ -1,9 +1,9 @@
+
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -21,14 +21,8 @@ public class TurretNext implements Mechanism {
     public static String SERVO_NAME1 = "storreta";
     public static String ENCODER_NAME = "encoder";
 
-    public static double FIELD_MIDDLE_Y = 72.0;
-    public static double LINE_HYSTERESIS = 2.0;
-
-    public static double HIVE_A_X = 70.75;
-    public static double HIVE_A_Y = 70;
-
-    public static double HIVE_B_X = 70.75;
-    public static double HIVE_B_Y = 98;
+    public static double HIVE_X = 70.75;
+    public static double HIVE_Y = 84;
 
     public static double TURRET_TEETH = 171.0;
     public static double ENCODER_TEETH = 60.0;
@@ -42,16 +36,18 @@ public class TurretNext implements Mechanism {
     public static double SAFETY_MARGIN_DEG = 3.0;
 
     public static double KP = 1;
-    public static double KI = .02;
-    public static double KD = 0.06;
+    public static double KI = 0.02;
+    public static double KD = 0.09;
+
     public static double MAX_POWER = 1.0;
     public static double DEADBAND = 1.0;
     public static double ON_TARGET_TOLERANCE_DEG = 2.0;
 
-
     public static boolean SHOOT_WHILE_MOVING = true;
-    public static double FLIGHT_TIME_BASE = 0.25;      // segundos
-    public static double FLIGHT_TIME_PER_INCH = 0.004; // segundos por polegada
+
+    public static double FLIGHT_TIME_BASE = 0;
+    public static double FLIGHT_TIME_PER_INCH = 0;
+
     public static double VELOCITY_FILTER = 0.3;
     public static double VELOCITY_DEADZONE = 1.0;
 
@@ -65,7 +61,6 @@ public class TurretNext implements Mechanism {
 
     private boolean autoAimEnabled = true;
     private boolean poseReceived = false;
-    private boolean aimingHiveA;
 
     private double currentAngle;
     private double fieldAngle;
@@ -75,13 +70,18 @@ public class TurretNext implements Mechanism {
 
     private boolean limitBlocked;
 
-    private double velX, velY;
-    private double lastX, lastY;
+    private double velX;
+    private double velY;
+
+    private double lastX;
+    private double lastY;
     private long lastVelTimeNs;
     private boolean velInit = false;
 
-    // Debug
-    private double aimX, aimY, flightTime;
+    private double aimX;
+    private double aimY;
+    private double flightTime;
+
     private double aimDistance;
     private double radialSpeed;
 
@@ -99,6 +99,7 @@ public class TurretNext implements Mechanism {
 
         poseReceived = false;
         velInit = false;
+
         velX = 0;
         velY = 0;
 
@@ -130,57 +131,59 @@ public class TurretNext implements Mechanism {
 
         currentAngle = ENCODER_SIGN * encoder.getCurrentPosition() * degreesPerTick;
 
-        if (!poseReceived) {
-            aimingHiveA = robotY > FIELD_MIDDLE_Y;
-            poseReceived = true;
-        } else if (aimingHiveA && robotY < FIELD_MIDDLE_Y - LINE_HYSTERESIS) {
-            aimingHiveA = false;
-        } else if (!aimingHiveA && robotY > FIELD_MIDDLE_Y + LINE_HYSTERESIS) {
-            aimingHiveA = true;
-        }
+        poseReceived = true;
 
-        double hiveX = aimingHiveA ? HIVE_A_X : HIVE_B_X;
-        double hiveY = aimingHiveA ? HIVE_A_Y : HIVE_B_Y;
-
-        // Ponto de mira: o hive "deslocado" pela velocidade do robô.
-        // A bola herda a velocidade do robô, então miramos onde o hive
-        // estaria em relação à bola durante o voo: alvo = hive - velocidade * tempo.
-        aimX = hiveX;
-        aimY = hiveY;
+        aimX = HIVE_X;
+        aimY = HIVE_Y;
         flightTime = 0;
 
         if (SHOOT_WHILE_MOVING) {
+
             double speed = Math.hypot(velX, velY);
 
             if (speed > VELOCITY_DEADZONE) {
-                // O tempo de voo depende da distância até o ponto de mira,
-                // que depende do tempo -> 3 iterações resolvem bem.
+
                 for (int i = 0; i < 3; i++) {
-                    double dist = Math.hypot(aimX - robotX, aimY - robotY);
-                    flightTime = FLIGHT_TIME_BASE + dist * FLIGHT_TIME_PER_INCH;
-                    aimX = hiveX - velX * flightTime;
-                    aimY = hiveY - velY * flightTime;
+
+                    double dist = Math.hypot(
+                            aimX - robotX,
+                            aimY - robotY
+                    );
+
+                    flightTime = FLIGHT_TIME_BASE
+                            + dist * FLIGHT_TIME_PER_INCH;
+
+                    aimX = HIVE_X - velX * flightTime;
+                    aimY = HIVE_Y - velY * flightTime;
                 }
             }
         }
 
-        // Velocidade radial: quanto o robô se afasta (+) ou se aproxima (-) do hive, em pol/s
-        double toRobotX = robotX - hiveX;
-        double toRobotY = robotY - hiveY;
+        double toRobotX = robotX - HIVE_X;
+        double toRobotY = robotY - HIVE_Y;
+
         double hiveDist = Math.hypot(toRobotX, toRobotY);
+
         radialSpeed = (SHOOT_WHILE_MOVING && hiveDist > 1e-3)
                 ? (velX * toRobotX + velY * toRobotY) / hiveDist
                 : 0.0;
 
-        // Distância até o ponto de mira (já compensado) -> usada pelo shooter
-        aimDistance = Math.hypot(aimX - robotX, aimY - robotY);
-
-        fieldAngle = Math.toDegrees(
-                Math.atan2(aimY - robotY, aimX - robotX)
+        aimDistance = Math.hypot(
+                aimX - robotX,
+                aimY - robotY
         );
 
+        fieldAngle = Math.toDegrees(
+                Math.atan2(
+                        aimY - robotY,
+                        aimX - robotX
+                )
+        );
+
+        double desiredAngle = wrapAngle(fieldAngle - robotHeading);
+
         targetAngle = clip(
-                wrapAngle(fieldAngle - robotHeading),
+                desiredAngle,
                 TURRET_MIN_DEG + SAFETY_MARGIN_DEG,
                 TURRET_MAX_DEG - SAFETY_MARGIN_DEG
         );
@@ -188,10 +191,17 @@ public class TurretNext implements Mechanism {
         error = targetAngle - currentAngle;
 
         if (!autoAimEnabled || Math.abs(error) <= DEADBAND) {
+
             power = 0;
             pid.reset();
+
         } else {
-            power = clip(pid.calculate(error), -MAX_POWER, MAX_POWER);
+
+            power = clip(
+                    pid.calculate(error),
+                    -MAX_POWER,
+                    MAX_POWER
+            );
         }
 
         limitBlocked = false;
@@ -199,27 +209,32 @@ public class TurretNext implements Mechanism {
         if (currentAngle >= TURRET_MAX_DEG && power > 0) {
             power = 0;
             limitBlocked = true;
+            pid.reset();
         }
 
         if (currentAngle <= TURRET_MIN_DEG && power < 0) {
             power = 0;
             limitBlocked = true;
+            pid.reset();
         }
 
         servo.setPower(SERVO_SIGN * power);
         servo1.setPower(SERVO_SIGN * power);
     }
 
-    /** Velocidade do robô no campo (pol/s), calculada pela variação da pose + filtro. */
     private void updateVelocity(double x, double y) {
+
         long now = System.nanoTime();
 
         if (!velInit) {
+
             lastX = x;
             lastY = y;
             lastVelTimeNs = now;
+
             velX = 0;
             velY = 0;
+
             velInit = true;
             return;
         }
@@ -227,9 +242,11 @@ public class TurretNext implements Mechanism {
         double dt = (now - lastVelTimeNs) / 1e9;
 
         if (dt <= 1e-4 || dt > 0.25) {
+
             lastX = x;
             lastY = y;
             lastVelTimeNs = now;
+
             return;
         }
 
@@ -267,6 +284,7 @@ public class TurretNext implements Mechanism {
     }
 
     public void setAutoAimEnabled(boolean enabled) {
+
         autoAimEnabled = enabled;
 
         if (!enabled) {
@@ -279,8 +297,10 @@ public class TurretNext implements Mechanism {
     }
 
     public void stop() {
+
         autoAimEnabled = false;
         power = 0;
+
         pid.reset();
 
         servo.setPower(0);
@@ -301,16 +321,10 @@ public class TurretNext implements Mechanism {
         return SHOOT_WHILE_MOVING;
     }
 
-    public boolean isAimingHiveA() {
-        return aimingHiveA;
-    }
-
-    /** Distância até o ponto de mira compensado (0 até o primeiro periodic). */
     public double getAimDistance() {
         return aimDistance;
     }
 
-    /** Velocidade (pol/s) com que o robô se afasta (+) ou se aproxima (-) do hive. */
     public double getRadialSpeed() {
         return radialSpeed;
     }
@@ -336,7 +350,9 @@ public class TurretNext implements Mechanism {
     }
 
     public void logTelemetry() {
-        Telemetry.log("Hive Alvo", aimingHiveA ? "A" : "B");
+
+        Telemetry.log("Hive X", HIVE_X);
+        Telemetry.log("Hive Y", HIVE_Y);
         Telemetry.log("Field Angle", fieldAngle);
         Telemetry.log("Turret Angle", currentAngle);
         Telemetry.log("Turret Target", targetAngle);
@@ -365,27 +381,38 @@ public class TurretNext implements Mechanism {
         double calculate(double error) {
 
             long now = System.nanoTime();
-            double dt = first ? 0.0 : (now - lastTimeNs) / 1e9;
+
+            double dt = first
+                    ? 0.0
+                    : (now - lastTimeNs) / 1e9;
 
             double derivative = 0.0;
 
             if (!first && dt > 0) {
+
                 integral += error * dt;
                 derivative = (error - lastError) / dt;
             }
+
             first = false;
             lastError = error;
             lastTimeNs = now;
 
-            return KP * error + KI * integral + KD * derivative;
+            return KP * error
+                    + KI * integral
+                    + KD * derivative;
         }
+
         void reset() {
+
             integral = 0.0;
             lastError = 0.0;
             first = true;
         }
     }
+
     private double wrapAngle(double angle) {
+
         while (angle > 180) {
             angle -= 360;
         }
@@ -396,6 +423,7 @@ public class TurretNext implements Mechanism {
 
         return angle;
     }
+
     private double clip(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
     }
