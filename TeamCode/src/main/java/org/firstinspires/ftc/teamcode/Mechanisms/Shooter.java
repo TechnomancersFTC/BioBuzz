@@ -1,18 +1,13 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-<<<<<<< HEAD
 import dev.nextftc.hardware.actuators.NextMotor.Direction;
-=======
 import com.acmerobotics.dashboard.config.Config;
->>>>>>> da171e284986bf8d80c7065937b9b91268ec162d
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
 import dev.nextftc.robot.Telemetry;
 
 import static dev.nextftc.units.Units.Radians;
 import static dev.nextftc.units.Units.RadiansPerSecond;
-
-import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.constants.autoshoot;
 
@@ -26,7 +21,6 @@ public class Shooter implements Mechanism {
     private static final double RADIANS_PER_TICK =
             (2.0 * Math.PI) / TICKS_PER_REV;
 
-<<<<<<< HEAD
     public static volatile double Fkp = 0.05;
     public static volatile double Fki = 0.006;
     public static volatile double Fkd = 0.0;
@@ -36,17 +30,10 @@ public class Shooter implements Mechanism {
     public static volatile double Fka = .9;
 
     public static volatile double goal = 1400.0;
-=======
-    public static double Fkp = 0.0008;
-    public static double Fki = 0.00115;
-    public static double Fkd = 0.0;
 
-    public static double Fks = 0.05;
-    public static double Fkv = 0.0024;
-    public static double Fka = 0.01;
+    public static volatile double RADIAL_GAIN = 1.0;
+    public static volatile double RADIAL_MAX = 200.0;
 
-    public static double goal = 1220.0;
->>>>>>> da171e284986bf8d80c7065937b9b91268ec162d
 
     private final NextMotor shooter = new NextMotor(
             "shooter",
@@ -65,8 +52,8 @@ public class Shooter implements Mechanism {
     private double targetVelocity = 0.0;
     private boolean running = false;
 
-    // modo automático por distância
     private DoubleSupplier distanceSupplier = null;
+    private DoubleSupplier radialSpeedSupplier = null;
     private boolean autoDistance = false;
 
     private void updateGains() {
@@ -88,6 +75,19 @@ public class Shooter implements Mechanism {
         );
     }
 
+    /** Velocidade alvo automática: tabela por distância + compensação radial. */
+    private double autoTarget() {
+        double speed = autoshoot.flywheelSpeed(distanceSupplier.getAsDouble());
+
+        if (radialSpeedSupplier != null) {
+            double extra = RADIAL_GAIN * radialSpeedSupplier.getAsDouble();
+            extra = Math.max(-RADIAL_MAX, Math.min(RADIAL_MAX, extra));
+            speed += extra;
+        }
+
+        return Math.max(0.0, speed);
+    }
+
     @Override
     public void periodic() {
 
@@ -95,7 +95,7 @@ public class Shooter implements Mechanism {
 
         // atualiza o alvo em tempo real pela distância até o gol
         if (autoDistance && distanceSupplier != null) {
-            targetVelocity = autoshoot.flywheelSpeed(distanceSupplier.getAsDouble());
+            targetVelocity = autoTarget();
         }
 
         Telemetry.log("Shooter Fkp", Fkp);
@@ -133,20 +133,31 @@ public class Shooter implements Mechanism {
     public void shoot() {
         autoDistance = false;
         distanceSupplier = null;
+        radialSpeedSupplier = null;
         setVelocity(goal);
     }
 
     /** Liga o shooter e mantém a velocidade atualizada pela distância até o gol. */
     public void shootAuto(DoubleSupplier goalDistance) {
+        shootAuto(goalDistance, null);
+    }
+
+    /**
+     * Igual ao anterior, mas também compensa o movimento do robô.
+     * radialSpeed: pol/s, positivo = se afastando do gol.
+     */
+    public void shootAuto(DoubleSupplier goalDistance, DoubleSupplier radialSpeed) {
         distanceSupplier = goalDistance;
+        radialSpeedSupplier = radialSpeed;
         autoDistance = true;
-        setVelocity(autoshoot.flywheelSpeed(goalDistance.getAsDouble()));
+        setVelocity(autoTarget());
     }
 
     public void stop() {
         running = false;
         autoDistance = false;
         distanceSupplier = null;
+        radialSpeedSupplier = null;
         targetVelocity = 0.0;
 
         shooter.setThrottle(0.0);
@@ -156,6 +167,7 @@ public class Shooter implements Mechanism {
         running = false;
         autoDistance = false;
         distanceSupplier = null;
+        radialSpeedSupplier = null;
         targetVelocity = 0.0;
 
         shooter.setThrottle(0.3);

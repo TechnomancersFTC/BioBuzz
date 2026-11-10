@@ -17,7 +17,6 @@ public class Robot implements NextRobot {
     public final Intake intake = new Intake();
     public final Shooter shooter = new Shooter();
     public final FlowerTake flowerTake = new FlowerTake();
-
     public final Lock lock = new Lock();
 
 
