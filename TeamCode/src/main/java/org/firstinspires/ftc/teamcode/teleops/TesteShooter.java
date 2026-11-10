@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
-import dev.nextftc.robot.opmode.NextOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-public class TesteShooter extends NextOpMode {
+public class TesteShooter extends OpMode {
 }
