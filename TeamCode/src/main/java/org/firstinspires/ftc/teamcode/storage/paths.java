@@ -24,6 +24,8 @@ public class paths{
 
 
     //Paths
+
+    //VELOCIDADE DIFERENTE
     public static Path path1() {
         return Paths.line(startAuto, intakeGarden).constant(0)
                 .with(Constants.foresightConfig.maxPathSpeed.at(0.45));
