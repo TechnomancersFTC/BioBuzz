@@ -10,25 +10,21 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public class paths{
 
 
-    //Pontos
     private static final PoseFactory poseFactory = PoseFactory.degrees();
-    public static final Pose startPoseteleop = poseFactory.of(6, 134, 270);
+    public static final Pose startPoseteleop = poseFactory.of(9.4, 7.8, 90);
     public static final Pose startAuto = poseFactory.of(70.75, 133.8, 270);
-    private static final Pose intakeGarden = poseFactory.of(120, 135, 0);
+    private static final Pose intakeGarden = poseFactory.of(117, 135, 0);
     private static final Pose flowerStop = poseFactory.of(95, 35, 270);
-    private static final Pose flower1 = poseFactory.of(85, 14, 270);
-    private static final Pose flower2 = poseFactory.of(127, 95, 0);
-    private static final Pose flowerStop2 = poseFactory.of(120, 95, 0);
+    private static final Pose flower1 = poseFactory.of(88, 12, 270);
+    private static final Pose flower2 = poseFactory.of(120, 98, 0);
+    private static final Pose flowerStop2 = poseFactory.of(113, 98, 0);
     private static final Pose finalLaunch = poseFactory.of(87, 125, 0);
     private static final Pose park = poseFactory.of(134, 43.7628, 180);
 
 
-    //Paths
-
-    //VELOCIDADE DIFERENTE
     public static Path path1() {
         return Paths.line(startAuto, intakeGarden).constant(0)
-                .with(Constants.foresightConfig.maxPathSpeed.at(0.75));
+                .with(Constants.foresightConfig.maxPathSpeed.at(0.2));
     }
 
     public static Path path2() {

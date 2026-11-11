@@ -27,25 +27,20 @@ public class Shooter implements Mechanism {
     public static volatile double Fkd = 0.0;
 
     public static volatile double Fks = 0.18;
-    public static volatile double Fkv = 0.00148;
+    public static volatile double Fkv = 0.0013;
     public static volatile double Fka = 0;
 
     public static volatile double goal = 1400.0;
 
-    // Correção radial
     public static volatile double RADIAL_GAIN = 1.0;
     public static volatile double RADIAL_MAX = 200.0;
 
-    // BANG-BANG
     public static volatile boolean BANG_BANG_ENABLED = true;
 
-    // Erro necessário para entrar no Bang-Bang
-    public static volatile double BANG_BANG_ENTER_ERROR = 150.0;
+    public static volatile double BANG_BANG_ENTER_ERROR = 50.0;
 
-    // Erro para voltar ao PID
     public static volatile double BANG_BANG_EXIT_ERROR = 50.0;
 
-    // Potência durante recuperação
     public static volatile double BANG_BANG_POWER = 1.0;
 
     private final NextMotor shooter = new NextMotor(
