@@ -1,7 +1,8 @@
+
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import dev.nextftc.hardware.actuators.NextMotor.Direction;
 import com.acmerobotics.dashboard.config.Config;
+
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
 import dev.nextftc.robot.Telemetry;
@@ -9,7 +10,7 @@ import dev.nextftc.robot.Telemetry;
 import static dev.nextftc.units.Units.Radians;
 import static dev.nextftc.units.Units.RadiansPerSecond;
 
-import org.firstinspires.ftc.teamcode.storage.autoshoot;
+import org.firstinspires.ftc.teamcode.constants.autoshoot;
 
 import java.util.function.DoubleSupplier;
 
@@ -21,39 +22,53 @@ public class Shooter implements Mechanism {
     private static final double RADIANS_PER_TICK =
             (2.0 * Math.PI) / TICKS_PER_REV;
 
-    public static volatile double Fkp = 0.05;
-    public static volatile double Fki = 0.006;
+    // PID + Feedforward
+    public static volatile double Fkp = 0;
+    public static volatile double Fki = 0;
     public static volatile double Fkd = 0.0;
 
-    public static volatile double Fks = 0.09;
+    public static volatile double Fks = 0.18;
     public static volatile double Fkv = 0.00148;
-    public static volatile double Fka = .9;
+    public static volatile double Fka = 0;
 
     public static volatile double goal = 1400.0;
 
+    // Correção radial
     public static volatile double RADIAL_GAIN = 1.0;
     public static volatile double RADIAL_MAX = 200.0;
 
+    // BANG-BANG
+    public static volatile boolean BANG_BANG_ENABLED = true;
+
+    // Erro necessário para entrar no Bang-Bang
+    public static volatile double BANG_BANG_ENTER_ERROR = 150.0;
+
+    // Erro para voltar ao PID
+    public static volatile double BANG_BANG_EXIT_ERROR = 50.0;
+
+    // Potência durante recuperação
+    public static volatile double BANG_BANG_POWER = 1.0;
 
     private final NextMotor shooter = new NextMotor(
             "shooter",
             Radians.of(RADIANS_PER_TICK)
-
     );
-    {
-        shooter.setDirection(NextMotor.Direction.REVERSE);
-    }
 
+    private final NextMotor shooter2 = new NextMotor("shooter2");
 
     {
-        shooter.setDirection(Direction.FORWARD);
+        shooter.setDirection(NextMotor.Direction.FORWARD);
+        shooter2.setDirection(NextMotor.Direction.REVERSE);
     }
 
     private double targetVelocity = 0.0;
+
     private boolean running = false;
+    private boolean bangBangActive = false;
 
     private DoubleSupplier distanceSupplier = null;
     private DoubleSupplier radialSpeedSupplier = null;
+
     private boolean autoDistance = false;
 
     private void updateGains() {
@@ -75,13 +90,80 @@ public class Shooter implements Mechanism {
         );
     }
 
-    /** Velocidade alvo automática: tabela por distância + compensação radial. */
+    private static double clampThrottle(double value) {
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            return 0.0;
+        }
+
+        return Math.max(-1.0, Math.min(1.0, value));
+    }
+
+    /**
+     * Motor 2 acompanha o throttle do motor 1.
+     */
+    private void applyFollower() {
+        shooter2.setThrottle(
+                clampThrottle(shooter.getThrottle())
+        );
+    }
+
+    /**
+     * Controle híbrido PID + Bang-Bang.
+     */
+    private void applyHybridControl() {
+
+        double currentVelocity = getVelocity();
+
+        double error = targetVelocity - currentVelocity;
+
+        if (BANG_BANG_ENABLED) {
+
+            if (!bangBangActive &&
+                    error >= BANG_BANG_ENTER_ERROR) {
+
+                bangBangActive = true;
+            }
+
+            if (bangBangActive &&
+                    error <= BANG_BANG_EXIT_ERROR) {
+
+                bangBangActive = false;
+            }
+
+        } else {
+            bangBangActive = false;
+        }
+
+        if (bangBangActive) {
+
+            shooter.setThrottle(
+                    clampThrottle(BANG_BANG_POWER)
+            );
+
+        } else {
+
+            applyVelocitySetpoint();
+        }
+
+        applyFollower();
+    }
+
     private double autoTarget() {
-        double speed = autoshoot.flywheelSpeed(distanceSupplier.getAsDouble());
+
+        double speed = autoshoot.flywheelSpeed(
+                distanceSupplier.getAsDouble()
+        );
 
         if (radialSpeedSupplier != null) {
-            double extra = RADIAL_GAIN * radialSpeedSupplier.getAsDouble();
-            extra = Math.max(-RADIAL_MAX, Math.min(RADIAL_MAX, extra));
+
+            double extra =
+                    RADIAL_GAIN * radialSpeedSupplier.getAsDouble();
+
+            extra = Math.max(
+                    -RADIAL_MAX,
+                    Math.min(RADIAL_MAX, extra)
+            );
+
             speed += extra;
         }
 
@@ -93,9 +175,12 @@ public class Shooter implements Mechanism {
 
         updateGains();
 
-        // atualiza o alvo em tempo real pela distância até o gol
         if (autoDistance && distanceSupplier != null) {
             targetVelocity = autoTarget();
+        }
+
+        if (running) {
+            applyHybridControl();
         }
 
         Telemetry.log("Shooter Fkp", Fkp);
@@ -114,68 +199,93 @@ public class Shooter implements Mechanism {
         Telemetry.log("Shooter Target", targetVelocity);
         Telemetry.log("Shooter Velocity", getVelocity());
         Telemetry.log("Shooter Error", getVelocityError());
-        Telemetry.log("Shooter Power", getPower());
 
-        if (running) {
-            applyVelocitySetpoint();
-        }
+        Telemetry.log("Shooter BangBang", bangBangActive);
+        Telemetry.log("Shooter BangBang Enabled", BANG_BANG_ENABLED);
+
+        Telemetry.log("Shooter 1 Power", getPower());
+        Telemetry.log("Shooter 2 Power", shooter2.getThrottle());
     }
 
     public void setVelocity(double velocityTicksPerSec) {
+
         targetVelocity = velocityTicksPerSec;
+
         running = true;
+        bangBangActive = false;
 
         updateGains();
+
         applyVelocitySetpoint();
+        applyFollower();
     }
 
-    /** Velocidade fixa (campo "goal" do Dashboard). */
     public void shoot() {
+
         autoDistance = false;
+
         distanceSupplier = null;
         radialSpeedSupplier = null;
+
         setVelocity(goal);
     }
 
-    /** Liga o shooter e mantém a velocidade atualizada pela distância até o gol. */
     public void shootAuto(DoubleSupplier goalDistance) {
         shootAuto(goalDistance, null);
     }
 
-    /**
-     * Igual ao anterior, mas também compensa o movimento do robô.
-     * radialSpeed: pol/s, positivo = se afastando do gol.
-     */
-    public void shootAuto(DoubleSupplier goalDistance, DoubleSupplier radialSpeed) {
+    public void shootAuto(
+            DoubleSupplier goalDistance,
+            DoubleSupplier radialSpeed
+    ) {
+
         distanceSupplier = goalDistance;
         radialSpeedSupplier = radialSpeed;
+
         autoDistance = true;
+
         setVelocity(autoTarget());
     }
 
     public void stop() {
+
         running = false;
         autoDistance = false;
+
+        bangBangActive = false;
+
         distanceSupplier = null;
         radialSpeedSupplier = null;
+
         targetVelocity = 0.0;
 
         shooter.setThrottle(0.0);
+        shooter2.setThrottle(0.0);
     }
 
     public void testMotor() {
+
         running = false;
         autoDistance = false;
+
+        bangBangActive = false;
+
         distanceSupplier = null;
         radialSpeedSupplier = null;
+
         targetVelocity = 0.0;
 
         shooter.setThrottle(0.3);
+        shooter2.setThrottle(0.3);
     }
 
     public double getVelocity() {
         return shooter.getEncoderVelocity().getMagnitude()
                 / RADIANS_PER_TICK;
+    }
+
+    public double getVelocity2() {
+        return getVelocity();
     }
 
     public double getTarget() {
@@ -196,5 +306,9 @@ public class Shooter implements Mechanism {
 
     public boolean isAutoDistance() {
         return autoDistance;
+    }
+
+    public boolean isBangBangActive() {
+        return bangBangActive;
     }
 }

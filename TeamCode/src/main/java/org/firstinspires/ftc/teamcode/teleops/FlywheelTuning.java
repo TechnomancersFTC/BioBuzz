@@ -2,8 +2,8 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
 import com.acmerobotics.dashboard.config.Config;
-
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.Robot;
@@ -14,12 +14,14 @@ import dev.nextftc.robot.Telemetry;
 import dev.nextftc.robot.opmode.NextOpMode;
 import dev.nextftc.robot.opmode.NextTeleop;
 
+import static com.pedropathing.ivy.commands.Commands.*;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+
 @Config
 @NextTeleop(name = "Flywheel Tuning")
 public class FlywheelTuning extends NextOpMode {
 
     private final Robot robot;
-
     private Follower follower;
 
     private static final double HIVE_A_X = 70.75;
@@ -34,6 +36,7 @@ public class FlywheelTuning extends NextOpMode {
 
     private boolean lastA = false;
     private boolean lastLeftBumper = false;
+    private boolean lastRightBumper = false;
 
     public FlywheelTuning(Robot robot) {
         super(robot);
@@ -60,11 +63,22 @@ public class FlywheelTuning extends NextOpMode {
 
     }
 
+    private Command lockAndIntakeSequence() {
+        return sequential(
+                robot.lock.open(),
+                robot.intake.run(),
+                waitMs(1000),
+                robot.intake.stop(),
+                robot.lock.close()
+        );
+    }
+
     @Override
     public void periodic() {
 
         follower.update();
 
+        // A: liga/desliga shooter
         boolean aPressed = gamepad1.a;
 
         if (aPressed && !lastA) {
@@ -78,6 +92,7 @@ public class FlywheelTuning extends NextOpMode {
 
         lastA = aPressed;
 
+        // LEFT BUMPER: intake enquanto segura
         boolean leftBumperPressed = gamepad1.left_bumper;
 
         if (leftBumperPressed && !lastLeftBumper) {
@@ -90,18 +105,24 @@ public class FlywheelTuning extends NextOpMode {
 
         lastLeftBumper = leftBumperPressed;
 
+        // RIGHT BUMPER: sequência lock + intake
+        boolean rightBumperPressed = gamepad1.right_bumper;
+
+        if (rightBumperPressed && !lastRightBumper) {
+            lockAndIntakeSequence().schedule();
+        }
+
+        lastRightBumper = rightBumperPressed;
+
         Pose pose = follower.pose();
 
         double targetX;
         double targetY;
 
         if (pose.y() > FIELD_MIDDLE_Y) {
-
             targetX = HIVE_A_X;
             targetY = HIVE_A_Y;
-
         } else {
-
             targetX = HIVE_B_X;
             targetY = HIVE_B_Y;
         }
@@ -119,10 +140,7 @@ public class FlywheelTuning extends NextOpMode {
                 Math.toDegrees(pose.heading())
         );
 
-        Telemetry.log(
-                "Distance to Goal (in)",
-                distanceToGoal
-        );
+        Telemetry.log("Distance to Goal (in)", distanceToGoal);
 
         Telemetry.log(
                 "Flywheel Running",
@@ -160,5 +178,7 @@ public class FlywheelTuning extends NextOpMode {
         robot.intake.stop().schedule();
 
         robot.turret.stop();
+
+        robot.lock.close().schedule();
     }
 }
