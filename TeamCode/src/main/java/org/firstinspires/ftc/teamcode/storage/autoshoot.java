@@ -11,14 +11,16 @@ public class autoshoot {
         flywheeloffset = offset;
     }
 
-    private static final double[] X = {43, 47.30, 55.04, 60, 66, 68.35, 77.83, 80};
-    private static final double[] Y = {1000, 1000, 1180, 1100, 1200, 1200, 1200, 1300};
+    // Pontos medidos, ordenados por distância crescente
+    private static final double[] X = {34.89, 37.87, 51.45, 58.49, 61.24, 73.82, 87};
+    private static final double[] Y = {1325,  1325,  1325,  1325,  1300,  1350,  1325};
     private static final double[] M = computeSlopes(X, Y);
 
     public static double flywheelSpeed(double goalDist) {
         double d = goalDist + distoffset;
         double speed = interpolate(d);
-        return Math.max(900, Math.min(4000, speed)) + flywheeloffset;    }
+        return Math.max(900, Math.min(4000, speed)) + flywheeloffset;
+    }
 
     private static double interpolate(double x) {
         int n = X.length;

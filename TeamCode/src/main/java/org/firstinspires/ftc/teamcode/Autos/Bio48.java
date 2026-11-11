@@ -8,13 +8,12 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 
-import dev.nextftc.hardware.actuators.NextServo;
 import dev.nextftc.robot.Telemetry;
 import dev.nextftc.robot.opmode.NextOpMode;
 import dev.nextftc.robot.opmode.NextAutonomous;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.commands.Commands.instant;
+
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
@@ -30,9 +29,6 @@ public class Bio48 extends NextOpMode {
 
     private final Robot robot;
     private final Follower follower;
-
-
-    private final NextServo lock = new NextServo("sLock");
 
     public Bio48(Robot robot) {
         super(robot);
@@ -94,28 +90,28 @@ public class Bio48 extends NextOpMode {
 
         Command firstFlower = sequential(
                 follow(follower, paths.path2()),
-                robot.flowerTake.open(),
+                robot.flowerTake.alto(),
                 follow(follower, paths.flowerTake()),
                 robot.intake.run(),
                 waitMs(3000),
                 robot.intake.stop(),
                 follow(follower, paths.flowerBack()),
-                robot.flowerTake.close()
+                robot.flowerTake.baixo()
         );
 
         Command secondFlower = sequential(
                 follow(follower, paths.path3()),
-                robot.flowerTake.open(),
+                robot.flowerTake.baixo(),
                 follow(follower, paths.flowerTake2()),
                 robot.intake.run(),
                 waitMs(1000),
                 robot.intake.stop(),
                 follow(follower, paths.flowerBack2()),
-                robot.flowerTake.close()
+                robot.flowerTake.alto()
         );
 
         return sequential(
-                waitMs(2500),
+                waitMs(3000),
                 launch(),
                 gardenIntake,
                 firstFlower,
@@ -129,24 +125,19 @@ public class Bio48 extends NextOpMode {
 
     private Command launch(){
         return sequential(
-                abreLock(),
                 robot.intake.run(),
-                waitMs(850),
+                waitMs(1500),
                 robot.intake.stop(),
                 fechaLock()
         );
     }
 
     public Command abreLock() {
-        return instant(() -> {
-            lock.setPosition(0);
-        });
+        return robot.lock.open();
     }
 
     public Command fechaLock() {
-        return instant(() -> {
-            lock.setPosition(0.8);
-        });
+        return robot.lock.setPosition(0.8);
     }
 
     @Override

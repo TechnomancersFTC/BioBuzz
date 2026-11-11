@@ -1,7 +1,7 @@
 
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import com.acmerobotics.dashboard.config.Config;
+
 
 import dev.nextftc.hardware.actuators.NextMotor;
 import dev.nextftc.robot.Mechanism;
@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.constants.autoshoot;
 
 import java.util.function.DoubleSupplier;
 
-@Config
 public class Shooter implements Mechanism {
 
     private static final double TICKS_PER_REV = 28.0;
