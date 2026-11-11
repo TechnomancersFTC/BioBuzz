@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.FlowerTake;
+
 import org.firstinspires.ftc.teamcode.Mechanisms.TurretNext;
 import org.firstinspires.ftc.teamcode.Mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.Mechanisms.Shooter;
@@ -16,6 +17,7 @@ public class Robot implements NextRobot {
     public final Intake intake = new Intake();
     public final Shooter shooter = new Shooter();
     public final FlowerTake flowerTake = new FlowerTake();
+
 
     @Override
     public Set<Mechanism> getMechanisms() {

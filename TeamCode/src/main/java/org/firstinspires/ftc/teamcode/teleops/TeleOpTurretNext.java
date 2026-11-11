@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleops;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -27,6 +28,10 @@ public class TeleOpTurretNext extends NextOpMode {
 
     private final Robot robot;
     private final Follower follower;
+    private Servo servoE, servoD;
+
+    double p1 = 0.85;
+    double p0 = 0;
 
     private final NextMotor frontLeft = new NextMotor(FRONT_LEFT);
     private final NextMotor frontRight = new NextMotor(FRONT_RIGHT);
@@ -34,6 +39,7 @@ public class TeleOpTurretNext extends NextOpMode {
     private final NextMotor backRight = new NextMotor(BACK_RIGHT);
 
     private boolean lastBumper = false;
+    boolean fState = false;
 
     public TeleOpTurretNext(Robot robot) {
         super(robot);
@@ -72,11 +78,15 @@ public class TeleOpTurretNext extends NextOpMode {
                 gamepad1,
                 () -> follower.pose().heading()
         ).schedule();
+        servoE = hardwareMap.get(Servo.class, "f1");
+        servoD = hardwareMap.get(Servo.class, "f2");
     }
 
     @Override
     public void periodic() {
         follower.update();
+
+        boolean aPressed = gamepad1.a;
 
         boolean bumper = gamepad1.right_bumper;
 
@@ -86,7 +96,9 @@ public class TeleOpTurretNext extends NextOpMode {
             );
         }
 
+
         lastBumper = bumper;
+
 
         Pose pose = follower.pose();
 
@@ -103,6 +115,18 @@ public class TeleOpTurretNext extends NextOpMode {
         );
 
         robot.turret.logTelemetry();
+
+        if (gamepad1.xWasPressed()) {
+            fState = !fState;
+            if (fState) {
+                servoD.setPosition(p0); // Posição ON // direita
+                servoE.setPosition(p1);//esquerda
+            } else {
+                servoD.setPosition(p1); // Posição OFF
+                servoE.setPosition(p0);
+
+            }
+        }
     }
 
     @Override
