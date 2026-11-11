@@ -18,7 +18,7 @@ public class autoshoot {
     public static double flywheelSpeed(double goalDist) {
         double d = goalDist + distoffset;
         double speed = interpolate(d);
-        return Math.max(900, Math.min(4000, speed)) + flywheeloffset;    }
+        return Math.max(900, Math.min(2500, speed)) + flywheeloffset;    }
 
     private static double interpolate(double x) {
         int n = X.length;
