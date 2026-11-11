@@ -19,7 +19,6 @@ public class Robot implements NextRobot {
     public final FlowerTake flowerTake = new FlowerTake();
     public final Lock lock = new Lock();
 
-
     @Override
     public Set<Mechanism> getMechanisms() {
         return Set.of(

@@ -2,7 +2,6 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
 import com.acmerobotics.dashboard.config.Config;
-
 import com.pedropathing.ivy.Command;
 
 import dev.nextftc.hardware.actuators.NextServo;
@@ -10,8 +9,11 @@ import dev.nextftc.robot.Mechanism;
 
 @Config
 public class Lock implements Mechanism {
-    public static double OPEN_POSITION = 0.8;
-    public static double CLOSED_POSITION = 1.0;
+
+    public static double OPEN_POSITION = 0.4;
+    public static double CLOSED_POSITION = .2;
+
+    public static volatile double DASHBOARD_POSITION = 0.8;
 
     private final NextServo servo = new NextServo("sLock");
 
@@ -27,6 +29,10 @@ public class Lock implements Mechanism {
 
     public Command close() {
         return setPosition(CLOSED_POSITION);
+    }
+
+    public void updateDashboardPosition() {
+        servo.setPosition(clip(DASHBOARD_POSITION));
     }
 
     public double getPosition() {

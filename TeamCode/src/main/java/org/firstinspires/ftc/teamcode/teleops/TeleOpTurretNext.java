@@ -19,6 +19,8 @@ import dev.nextftc.robot.triggers.CommandGamepad;
 
 import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.groups.Groups.race;
+
 @Config
 @NextTeleop(name = "TeleOp Turret Next")
 public class TeleOpTurretNext extends NextOpMode {
@@ -30,9 +32,9 @@ public class TeleOpTurretNext extends NextOpMode {
 
     private static final Pose START_POSE = paths.startPoseteleop;
     private static final boolean RESET_TURRET_ENCODER = true;
-
     private static final double GOAL_X = 70.75;
     private static final double GOAL_Y = 84;
+
     public static volatile double reverse = 0.2;
 
     private final Robot robot;
@@ -60,7 +62,6 @@ public class TeleOpTurretNext extends NextOpMode {
                 follower::pose
         );
     }
-
     private double goalDistance() {
         Pose p = follower.pose();
         return Math.hypot(GOAL_X - p.x(), GOAL_Y - p.y());
@@ -68,9 +69,6 @@ public class TeleOpTurretNext extends NextOpMode {
 
     private Command lockAndIntakeSequence() {
         return sequential(
-                robot.intake.reverse(),
-                waitMs(reverse),
-                robot.intake.stop(),
                 robot.lock.open(),
                 robot.intake.run(),
                 waitMs(1000),
@@ -82,6 +80,8 @@ public class TeleOpTurretNext extends NextOpMode {
     @Override
     public void start() {
 
+        robot.flowerTake.shoot().schedule();
+
         robot.shooter.shootAuto(this::goalDistance);
 
         CommandGamepad gp1 = new CommandGamepad(gamepad1);
@@ -91,8 +91,13 @@ public class TeleOpTurretNext extends NextOpMode {
 
         gp1.a().whileTrue(robot.intake.reverse());
         gp1.a().onFalse(robot.intake.stop());
+
         gp1.b().onTrue(robot.turret.toggleShootWhileMoving());
+
+        gp1.leftTrigger().isOver(0.5).onTrue(robot.flowerTake.baixo());
+        gp1.leftTrigger().isOver(0.5).onFalse(robot.flowerTake.shoot());
         gp1.rightBumper().onTrue(lockAndIntakeSequence());
+
         DriveCommands.mecanumDriveFieldCentric(
                 frontLeft,
                 frontRight,

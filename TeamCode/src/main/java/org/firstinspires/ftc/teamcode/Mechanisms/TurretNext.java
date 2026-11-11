@@ -19,8 +19,7 @@ public class TurretNext implements Mechanism {
 
     public static String SERVO_NAME = "storreta2";
     public static String SERVO_NAME1 = "storreta";
-    public static String ENCODER_NAME = "encoder";
-
+    public static String ENCODER_NAME = "shooter2";
     public static double HIVE_X = 70.75;
     public static double HIVE_Y = 84;
 
@@ -29,7 +28,7 @@ public class TurretNext implements Mechanism {
     public static double ENCODER_CPR = 8192.0;
 
     public static double SERVO_SIGN = -1.0;
-    public static double ENCODER_SIGN = -1.0;
+    public static double ENCODER_SIGN = 1.0;
 
     public static double TURRET_MIN_DEG = -180.0;
     public static double TURRET_MAX_DEG = 180.0;
@@ -44,7 +43,6 @@ public class TurretNext implements Mechanism {
     public static double ON_TARGET_TOLERANCE_DEG = 2.0;
 
     public static boolean SHOOT_WHILE_MOVING = true;
-
     public static double FLIGHT_TIME_BASE = 0;
     public static double FLIGHT_TIME_PER_INCH = 0;
 
@@ -350,7 +348,11 @@ public class TurretNext implements Mechanism {
     }
 
     public void logTelemetry() {
-
+        Telemetry.log("Encoder Raw", encoder.getCurrentPosition());
+        Telemetry.log("Turret Angle", currentAngle);
+        Telemetry.log("Target", targetAngle);
+        Telemetry.log("Error", error);
+        Telemetry.log("Power", power);
         Telemetry.log("Hive X", HIVE_X);
         Telemetry.log("Hive Y", HIVE_Y);
         Telemetry.log("Field Angle", fieldAngle);
