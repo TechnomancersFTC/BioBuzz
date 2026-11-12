@@ -10,21 +10,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
-
-import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 @Autonomous
 public class PlanB extends OpMode {
     private DcMotor shooter, intake, intake2;
-    private Servo Lock;
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
 
@@ -74,7 +70,6 @@ public class PlanB extends OpMode {
     public void init() {
         Scheduler.reset();
         shooter = hardwareMap.get(DcMotor.class,"shooter");
-        Lock = hardwareMap.get(Servo.class,"sLock");
         intake = hardwareMap.get(DcMotor.class, "intake");
         intake2 = hardwareMap.get(DcMotor.class, "intake2");
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
