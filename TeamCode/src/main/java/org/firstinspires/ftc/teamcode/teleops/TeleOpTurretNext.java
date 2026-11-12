@@ -19,6 +19,7 @@ import dev.nextftc.robot.triggers.CommandGamepad;
 import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.groups.Groups.race;
+import static com.sun.tools.doclint.HtmlTag.HEAD;
 
 
 @NextTeleop(name = "TeleOp Turret Next")
@@ -66,15 +67,17 @@ public class TeleOpTurretNext extends NextOpMode {
         return Math.hypot(GOAL_X - p.x(), GOAL_Y - p.y());
     }
 
-    private Command lockAndIntakeSequence() {
-        return sequential(
-                robot.lock.open(),
-                robot.intake.run(),
-                waitMs(1000),
-                robot.intake.stop(),
-                robot.lock.close()
-        );
-    }
+//    private Command lockAndIntakeSequence() {
+//
+//
+//                robot.intake.reverse(),
+//                waitMs(reverse),
+//                robot.intake.stop(),
+//                robot.lock.open(),
+//                robot.intake.run(),
+//                waitMs(1000),
+//                robot.intake.stop(),
+//                robot.lock.close()
 
     @Override
     public void start() {
@@ -95,7 +98,7 @@ public class TeleOpTurretNext extends NextOpMode {
 
         gp1.leftTrigger().isOver(0.5).onTrue(robot.flowerTake.baixo());
         gp1.leftTrigger().isOver(0.5).onFalse(robot.flowerTake.shoot());
-        gp1.rightBumper().onTrue(lockAndIntakeSequence());
+//        gp1.rightBumper().onTrue(lockAndIntakeSequence());
 
         DriveCommands.mecanumDriveFieldCentric(
                 frontLeft,
