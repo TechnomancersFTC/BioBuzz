@@ -34,9 +34,13 @@ public class Bio48 extends NextOpMode {
         super(robot);
 
         this.robot = robot;
+
         Scheduler.reset();
 
+        paths.resetAutoPose();
+
         follower = Constants.create(hardwareMap);
+
         follower.setPose(startAuto);
         follower.update();
 
@@ -51,6 +55,7 @@ public class Bio48 extends NextOpMode {
     public void start() {
 
         robot.turret.setAutoAimEnabled(true);
+
         robot.shooter.shootAuto(
                 robot.turret::getAimDistance,
                 robot.turret::getRadialSpeed
@@ -66,6 +71,8 @@ public class Bio48 extends NextOpMode {
 
         Pose pose = follower.pose();
 
+        paths.saveAutoPose(pose);
+
         Telemetry.log("X", pose.x());
         Telemetry.log("Y", pose.y());
         Telemetry.log("Heading", Math.toDegrees(pose.heading()));
@@ -78,6 +85,8 @@ public class Bio48 extends NextOpMode {
         Telemetry.log("Flywheel Running", robot.shooter.isRunning());
         Telemetry.log("Flywheel Target", robot.shooter.getTarget());
         Telemetry.log("Flywheel Velocity", robot.shooter.getVelocity());
+
+        Telemetry.log("Auto Pose Saved", true);
 
         robot.turret.logTelemetry();
     }
@@ -116,13 +125,21 @@ public class Bio48 extends NextOpMode {
         return sequential(
 
                 waitMs(2500),
+
                 launch(),
+
                 gardenIntake,
+
                 firstFlower,
+
                 secondFlower,
+
                 follow(follower, path4()),
+
                 waitMs(2000),
+
                 follow(follower, path5()),
+
                 robot.intake.stop()
         );
     }
@@ -145,8 +162,8 @@ public class Bio48 extends NextOpMode {
     @Override
     public void end() {
 
+        paths.saveAutoPose(follower.pose());
         robot.shooter.stop();
-
         follower.stop();
     }
 }
