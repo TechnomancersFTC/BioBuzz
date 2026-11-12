@@ -20,8 +20,6 @@ import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
-import static org.firstinspires.ftc.teamcode.storage.paths.middle;
-import static org.firstinspires.ftc.teamcode.storage.paths.middleBack;
 import static org.firstinspires.ftc.teamcode.storage.paths.path4;
 import static org.firstinspires.ftc.teamcode.storage.paths.path5;
 import static org.firstinspires.ftc.teamcode.storage.paths.startAuto;
@@ -36,9 +34,13 @@ public class Bio48 extends NextOpMode {
         super(robot);
 
         this.robot = robot;
+
         Scheduler.reset();
 
+        paths.resetAutoPose();
+
         follower = Constants.create(hardwareMap);
+
         follower.setPose(startAuto);
         follower.update();
 
@@ -53,6 +55,7 @@ public class Bio48 extends NextOpMode {
     public void start() {
 
         robot.turret.setAutoAimEnabled(true);
+
         robot.shooter.shootAuto(
                 robot.turret::getAimDistance,
                 robot.turret::getRadialSpeed
@@ -68,6 +71,8 @@ public class Bio48 extends NextOpMode {
 
         Pose pose = follower.pose();
 
+        paths.saveAutoPose(pose);
+
         Telemetry.log("X", pose.x());
         Telemetry.log("Y", pose.y());
         Telemetry.log("Heading", Math.toDegrees(pose.heading()));
@@ -81,13 +86,15 @@ public class Bio48 extends NextOpMode {
         Telemetry.log("Flywheel Target", robot.shooter.getTarget());
         Telemetry.log("Flywheel Velocity", robot.shooter.getVelocity());
 
+        Telemetry.log("Auto Pose Saved", true);
+
         robot.turret.logTelemetry();
     }
 
     private Command autoRoutine() {
 
         Command gardenIntake = parallel(
-                robot.lock.close(),
+                fechaLock(),
                 robot.intake.run(),
                 waitMs(2000),
                 follow(follower, paths.path1())
@@ -97,11 +104,10 @@ public class Bio48 extends NextOpMode {
                 follow(follower, paths.path2()),
                 robot.flowerTake.baixo(),
                 follow(follower, paths.flowerTake()),
-                robot.lock.open(),
                 robot.intake.run(),
-                waitMs(3500),
-                follow(follower, paths.flowerBack()),
+                waitMs(3000),
                 robot.intake.stop(),
+                follow(follower, paths.flowerBack()),
                 robot.flowerTake.alto()
         );
 
@@ -109,30 +115,32 @@ public class Bio48 extends NextOpMode {
                 follow(follower, paths.path3()),
                 robot.flowerTake.baixo(),
                 follow(follower, paths.flowerTake2()),
-                robot.lock.close(),
                 robot.intake.run(),
-                waitMs(2000),
-                follow(follower, paths.flowerBack2()),
+                waitMs(1000),
                 robot.intake.stop(),
-                robot.flowerTake.shoot()
+                follow(follower, paths.flowerBack2()),
+                robot.flowerTake.alto()
         );
 
         return sequential(
+
                 waitMs(2500),
+
                 launch(),
-                robot.flowerTake.garden(),
+
                 gardenIntake,
-                robot.flowerTake.alto(),
+
                 firstFlower,
+
                 secondFlower,
+
                 follow(follower, path4()),
-                robot.flowerTake.shoot(),
-                robot.lock.open(),
+
                 waitMs(2000),
-                robot.intake.run(),
+
                 follow(follower, path5()),
-                robot.intake.stop(),
-                robot.lock.close()
+
+                robot.intake.stop()
         );
     }
 
@@ -154,8 +162,9 @@ public class Bio48 extends NextOpMode {
     @Override
     public void end() {
 
+        paths.saveAutoPose(follower.pose());
         robot.shooter.stop();
-
         follower.stop();
     }
 }
+

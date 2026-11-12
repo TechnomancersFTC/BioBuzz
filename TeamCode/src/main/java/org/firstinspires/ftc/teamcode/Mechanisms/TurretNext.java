@@ -2,7 +2,6 @@
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
 
-import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,12 +14,13 @@ import dev.nextftc.hardware.actuators.NextCRServo;
 import dev.nextftc.robot.Mechanism;
 import dev.nextftc.robot.Telemetry;
 
-@Config
+
 public class TurretNext implements Mechanism {
 
     public static String SERVO_NAME = "storreta2";
     public static String SERVO_NAME1 = "storreta";
     public static String ENCODER_NAME = "shooter2";
+
     public static double HIVE_X = 70.75;
     public static double HIVE_Y = 84;
 
@@ -84,17 +84,28 @@ public class TurretNext implements Mechanism {
     private double aimDistance;
     private double radialSpeed;
 
-    public void init(HardwareMap hardwareMap, boolean resetEncoder, Supplier<Pose> poseSupplier) {
+    public void init(
+            HardwareMap hardwareMap,
+            boolean resetEncoder,
+            Supplier<Pose> poseSupplier
+    ) {
 
         this.poseSupplier = poseSupplier;
 
-        encoder = hardwareMap.get(DcMotorEx.class, ENCODER_NAME);
+        encoder = hardwareMap.get(
+                DcMotorEx.class,
+                ENCODER_NAME
+        );
 
         if (resetEncoder) {
-            encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            encoder.setMode(
+                    DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            );
         }
 
-        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encoder.setMode(
+                DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        );
 
         poseReceived = false;
         velInit = false;
@@ -102,8 +113,34 @@ public class TurretNext implements Mechanism {
         velX = 0;
         velY = 0;
 
+        power = 0;
+
+        pid.reset();
+
         servo.setPower(0);
-        servo1.setPower(0);
+        updateEncoderAngle();
+    }
+
+    private void updateEncoderAngle() {
+
+        if (encoder == null) return;
+
+        double ticksPerRev =
+                ENCODER_CPR * TURRET_TEETH / ENCODER_TEETH;
+
+        double degreesPerTick = 360.0 / ticksPerRev;
+
+        currentAngle =
+                ENCODER_SIGN
+                        * encoder.getCurrentPosition()
+                        * degreesPerTick;
+    }
+
+    public int getEncoderTicks() {
+
+        if (encoder == null) return 0;
+
+        return encoder.getCurrentPosition();
     }
 
     @Override
@@ -125,10 +162,7 @@ public class TurretNext implements Mechanism {
 
         updateVelocity(robotX, robotY);
 
-        double ticksPerRev = ENCODER_CPR * TURRET_TEETH / ENCODER_TEETH;
-        double degreesPerTick = 360.0 / ticksPerRev;
-
-        currentAngle = ENCODER_SIGN * encoder.getCurrentPosition() * degreesPerTick;
+        updateEncoderAngle();
 
         poseReceived = true;
 
@@ -149,8 +183,9 @@ public class TurretNext implements Mechanism {
                             aimY - robotY
                     );
 
-                    flightTime = FLIGHT_TIME_BASE
-                            + dist * FLIGHT_TIME_PER_INCH;
+                    flightTime =
+                            FLIGHT_TIME_BASE
+                                    + dist * FLIGHT_TIME_PER_INCH;
 
                     aimX = HIVE_X - velX * flightTime;
                     aimY = HIVE_Y - velY * flightTime;
@@ -179,7 +214,9 @@ public class TurretNext implements Mechanism {
                 )
         );
 
-        double desiredAngle = wrapAngle(fieldAngle - robotHeading);
+        double desiredAngle = wrapAngle(
+                fieldAngle - robotHeading
+        );
 
         targetAngle = clip(
                 desiredAngle,
@@ -206,12 +243,14 @@ public class TurretNext implements Mechanism {
         limitBlocked = false;
 
         if (currentAngle >= TURRET_MAX_DEG && power > 0) {
+
             power = 0;
             limitBlocked = true;
             pid.reset();
         }
 
         if (currentAngle <= TURRET_MIN_DEG && power < 0) {
+
             power = 0;
             limitBlocked = true;
             pid.reset();
@@ -220,6 +259,7 @@ public class TurretNext implements Mechanism {
         servo.setPower(SERVO_SIGN * power);
         servo1.setPower(SERVO_SIGN * power);
     }
+
 
     private void updateVelocity(double x, double y) {
 
@@ -265,21 +305,28 @@ public class TurretNext implements Mechanism {
     }
 
     public Command disableAutoAim() {
+
         return instant(() -> {
+
             autoAimEnabled = false;
             pid.reset();
         });
     }
 
     public Command toggleAutoAim() {
+
         return instant(() -> {
+
             autoAimEnabled = !autoAimEnabled;
             pid.reset();
         });
     }
 
     public Command toggleShootWhileMoving() {
-        return instant(() -> SHOOT_WHILE_MOVING = !SHOOT_WHILE_MOVING);
+
+        return instant(() ->
+                SHOOT_WHILE_MOVING = !SHOOT_WHILE_MOVING
+        );
     }
 
     public void setAutoAimEnabled(boolean enabled) {
@@ -294,7 +341,6 @@ public class TurretNext implements Mechanism {
     public void setShootWhileMoving(boolean enabled) {
         SHOOT_WHILE_MOVING = enabled;
     }
-
     public void stop() {
 
         autoAimEnabled = false;
@@ -304,9 +350,13 @@ public class TurretNext implements Mechanism {
 
         servo.setPower(0);
         servo1.setPower(0);
+
     }
 
+
+
     public boolean isOnTarget() {
+
         return autoAimEnabled
                 && poseReceived
                 && Math.abs(error) <= ON_TARGET_TOLERANCE_DEG;
@@ -349,27 +399,32 @@ public class TurretNext implements Mechanism {
     }
 
     public void logTelemetry() {
+
+        if (encoder == null) return;
+
         Telemetry.log("Encoder Raw", encoder.getCurrentPosition());
+        Telemetry.log("Turret Encoder Ticks", getEncoderTicks());
         Telemetry.log("Turret Angle", currentAngle);
         Telemetry.log("Target", targetAngle);
         Telemetry.log("Error", error);
         Telemetry.log("Power", power);
+
         Telemetry.log("Hive X", HIVE_X);
         Telemetry.log("Hive Y", HIVE_Y);
         Telemetry.log("Field Angle", fieldAngle);
-        Telemetry.log("Turret Angle", currentAngle);
-        Telemetry.log("Turret Target", targetAngle);
-        Telemetry.log("Error", error);
+
         Telemetry.log("On Target", isOnTarget());
-        Telemetry.log("Servo Power", power);
         Telemetry.log("Limit Blocked", limitBlocked);
         Telemetry.log("Auto Aim", autoAimEnabled);
         Telemetry.log("SWM", SHOOT_WHILE_MOVING);
+
         Telemetry.log("Vel X", velX);
         Telemetry.log("Vel Y", velY);
+
         Telemetry.log("Flight Time", flightTime);
         Telemetry.log("Aim X", aimX);
         Telemetry.log("Aim Y", aimY);
+
         Telemetry.log("Aim Dist", aimDistance);
         Telemetry.log("Radial Speed", radialSpeed);
     }
@@ -413,7 +468,6 @@ public class TurretNext implements Mechanism {
             first = true;
         }
     }
-
     private double wrapAngle(double angle) {
 
         while (angle > 180) {
@@ -428,6 +482,7 @@ public class TurretNext implements Mechanism {
     }
 
     private double clip(double value, double min, double max) {
+
         return Math.max(min, Math.min(max, value));
     }
 }
