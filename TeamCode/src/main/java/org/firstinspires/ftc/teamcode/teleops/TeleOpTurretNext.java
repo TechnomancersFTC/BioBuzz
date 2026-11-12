@@ -1,7 +1,6 @@
 
 package org.firstinspires.ftc.teamcode.teleops;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
 import com.pedropathing.ivy.Command;
@@ -21,7 +20,7 @@ import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.groups.Groups.race;
 
-@Config
+
 @NextTeleop(name = "TeleOp Turret Next")
 public class TeleOpTurretNext extends NextOpMode {
 
@@ -30,7 +29,7 @@ public class TeleOpTurretNext extends NextOpMode {
     private static final String BACK_LEFT = "bl";
     private static final String BACK_RIGHT = "br";
 
-    private static final Pose START_POSE = paths.startPoseteleop;
+    private static final Pose START_POSE = paths.park;
     private static final boolean RESET_TURRET_ENCODER = true;
     private static final double GOAL_X = 70.75;
     private static final double GOAL_Y = 84;

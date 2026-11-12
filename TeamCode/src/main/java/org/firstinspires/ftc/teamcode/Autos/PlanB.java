@@ -10,21 +10,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
-
-import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 @Autonomous
 public class PlanB extends OpMode {
     private DcMotor shooter, intake, intake2;
-    private Servo Lock;
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
 
@@ -39,35 +35,34 @@ public class PlanB extends OpMode {
     }
     private Command autoRoutine() {
         return sequential(
-                instant(() -> Lock.setPosition(0.2))
-//                waitMs(4000),
-//                instant(() -> intake.setPower(0.7)),
-//                instant(() -> intake2.setPower(0.7)),
-//                waitMs(100),
-//                instant(() -> intake.setPower(0)),
-//                instant(() -> intake2.setPower(0)),
-//                waitMs(1000),
-//                instant(() -> intake.setPower(1)),
-//                instant(() -> intake2.setPower(1)),
-//                waitMs(100),
-//                instant(() -> intake.setPower(0)),
-//                instant(() -> intake2.setPower(0)),
-//                waitMs(2500),
-//                instant(() -> intake2.setPower(1)),
-//                instant(() -> intake.setPower(1)),
-//                waitMs(100),
-//                instant(() -> intake.setPower(0)),
-//                instant(() -> intake2.setPower(0)),
-//                waitMs(3000),
-//                instant(() -> intake.setPower(1)),
-//                instant(() -> intake2.setPower(1)),
-//                waitMs(100),
-//                instant(() -> intake.setPower(0)),
-//                instant(() -> intake2.setPower(0)),
-//                waitMs(500),
-//                follow(follower, startToScore()),
-//                follow(follower, park()),
-//                instant(() -> shooter.setPower(0))
+                waitMs(4000),
+                instant(() -> intake.setPower(1)),
+                instant(() -> intake2.setPower(1)),
+                waitMs(100),
+                instant(() -> intake.setPower(0)),
+                instant(() -> intake2.setPower(0)),
+                waitMs(1000),
+                instant(() -> intake.setPower(1)),
+                instant(() -> intake2.setPower(1)),
+                waitMs(100),
+                instant(() -> intake.setPower(0)),
+                instant(() -> intake2.setPower(0)),
+                waitMs(2500),
+                instant(() -> intake2.setPower(1)),
+                instant(() -> intake.setPower(1)),
+                waitMs(100),
+                instant(() -> intake.setPower(0)),
+                instant(() -> intake2.setPower(0)),
+                waitMs(3000),
+                instant(() -> intake.setPower(1)),
+                instant(() -> intake2.setPower(1)),
+                waitMs(100),
+                instant(() -> intake.setPower(0)),
+                instant(() -> intake2.setPower(0)),
+                waitMs(500),
+                follow(follower, startToScore()),
+                follow(follower, park()),
+                instant(() -> shooter.setPower(0))
         );
     }
 
@@ -75,7 +70,6 @@ public class PlanB extends OpMode {
     public void init() {
         Scheduler.reset();
         shooter = hardwareMap.get(DcMotor.class,"shooter");
-        Lock = hardwareMap.get(Servo.class,"sLock");
         intake = hardwareMap.get(DcMotor.class, "intake");
         intake2 = hardwareMap.get(DcMotor.class, "intake2");
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -93,7 +87,7 @@ public class PlanB extends OpMode {
 
     @Override
     public void loop() {
-        shooter.setPower(-0.61);
+        shooter.setPower(-0.625);
         follower.update();
         Scheduler.execute();
         telemetry.addData("X", follower.pose().x());

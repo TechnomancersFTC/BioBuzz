@@ -1,13 +1,13 @@
 
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import com.acmerobotics.dashboard.config.Config;
+
 import com.pedropathing.ivy.Command;
 
 import dev.nextftc.hardware.actuators.NextServo;
 import dev.nextftc.robot.Mechanism;
 
-@Config
+
 public class Lock implements Mechanism {
 
     public static double OPEN_POSITION = 0.4;

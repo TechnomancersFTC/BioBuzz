@@ -1,17 +1,16 @@
 package org.firstinspires.ftc.teamcode.storage;
 
-import com.acmerobotics.dashboard.config.Config;
 
-@Config
+
+
 public class autoshoot {
-    public static double flywheeloffset = 70;
+    public static double flywheeloffset = 0;
     public static double distoffset = 0;
 
     public static void SetFlywheelOffset(double offset) {
         flywheeloffset = offset;
     }
 
-    // Pontos medidos, ordenados por distância crescente
     private static final double[] X = {34.89, 37.87, 51.45, 58.49, 61.24, 73.82, 87};
     private static final double[] Y = {1325,  1325,  1325,  1325,  1300,  1350,  1325};
     private static final double[] M = computeSlopes(X, Y);

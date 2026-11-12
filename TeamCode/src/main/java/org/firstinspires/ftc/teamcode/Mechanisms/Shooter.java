@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.constants.autoshoot;
 
 import java.util.function.DoubleSupplier;
 
+
 public class Shooter implements Mechanism {
 
     private static final double TICKS_PER_REV = 28.0;

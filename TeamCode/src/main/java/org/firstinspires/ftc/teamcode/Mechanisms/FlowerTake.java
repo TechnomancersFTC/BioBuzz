@@ -14,8 +14,8 @@ public class FlowerTake implements Mechanism {
 
     public Command baixo() {
         return instant(() -> {
-            servo1.setPosition(0.2);
-            servo2.setPosition(0.8);
+            servo1.setPosition(0.23);
+            servo2.setPosition(0.77);
         });
     }
     public Command shoot() {
@@ -26,8 +26,15 @@ public class FlowerTake implements Mechanism {
     }
     public Command alto() {
         return instant(() -> {
-            servo1.setPosition(0.8);
-            servo2.setPosition(0.2);
+            servo1.setPosition(0.77);
+            servo2.setPosition(0.23);
+        });
+    }
+
+    public Command garden() {
+        return instant(() -> {
+            servo1.setPosition(0.1);
+            servo2.setPosition(0.9);
         });
     }
 }

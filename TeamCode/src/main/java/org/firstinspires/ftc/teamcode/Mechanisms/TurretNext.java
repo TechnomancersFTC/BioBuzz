@@ -1,7 +1,7 @@
 
 package org.firstinspires.ftc.teamcode.Mechanisms;
 
-import com.acmerobotics.dashboard.config.Config;
+
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,7 +14,7 @@ import dev.nextftc.hardware.actuators.NextCRServo;
 import dev.nextftc.robot.Mechanism;
 import dev.nextftc.robot.Telemetry;
 
-@Config
+
 public class TurretNext implements Mechanism {
 
     public static String SERVO_NAME = "storreta2";

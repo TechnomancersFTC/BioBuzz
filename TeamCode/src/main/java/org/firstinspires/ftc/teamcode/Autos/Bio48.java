@@ -20,6 +20,8 @@ import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
+import static org.firstinspires.ftc.teamcode.storage.paths.middle;
+import static org.firstinspires.ftc.teamcode.storage.paths.middleBack;
 import static org.firstinspires.ftc.teamcode.storage.paths.path4;
 import static org.firstinspires.ftc.teamcode.storage.paths.path5;
 import static org.firstinspires.ftc.teamcode.storage.paths.startAuto;
@@ -85,7 +87,7 @@ public class Bio48 extends NextOpMode {
     private Command autoRoutine() {
 
         Command gardenIntake = parallel(
-                fechaLock(),
+                robot.lock.close(),
                 robot.intake.run(),
                 waitMs(2000),
                 follow(follower, paths.path1())
@@ -95,10 +97,11 @@ public class Bio48 extends NextOpMode {
                 follow(follower, paths.path2()),
                 robot.flowerTake.baixo(),
                 follow(follower, paths.flowerTake()),
+                robot.lock.open(),
                 robot.intake.run(),
-                waitMs(3000),
-                robot.intake.stop(),
+                waitMs(3500),
                 follow(follower, paths.flowerBack()),
+                robot.intake.stop(),
                 robot.flowerTake.alto()
         );
 
@@ -106,24 +109,30 @@ public class Bio48 extends NextOpMode {
                 follow(follower, paths.path3()),
                 robot.flowerTake.baixo(),
                 follow(follower, paths.flowerTake2()),
+                robot.lock.close(),
                 robot.intake.run(),
-                waitMs(1000),
-                robot.intake.stop(),
+                waitMs(2000),
                 follow(follower, paths.flowerBack2()),
-                robot.flowerTake.alto()
+                robot.intake.stop(),
+                robot.flowerTake.shoot()
         );
 
         return sequential(
-
                 waitMs(2500),
                 launch(),
+                robot.flowerTake.garden(),
                 gardenIntake,
+                robot.flowerTake.alto(),
                 firstFlower,
                 secondFlower,
                 follow(follower, path4()),
+                robot.flowerTake.shoot(),
+                robot.lock.open(),
                 waitMs(2000),
+                robot.intake.run(),
                 follow(follower, path5()),
-                robot.intake.stop()
+                robot.intake.stop(),
+                robot.lock.close()
         );
     }
 

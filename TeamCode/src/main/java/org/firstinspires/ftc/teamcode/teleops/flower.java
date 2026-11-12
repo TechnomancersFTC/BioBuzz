@@ -24,21 +24,22 @@ public class flower extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            if (gamepad1.a) {
-                servo1.setPosition(0);
-                servo2.setPosition(1);
+            if (gamepad1.a) { //baixo
+                servo1.setPosition(0.2);
+                servo2.setPosition(0.8);
             }
 
-            if (gamepad1.b) {
+            if (gamepad1.b) { //shoot
                 servo1.setPosition(0.4);
                 servo2.setPosition(0.4);
             }
 
-            if (gamepad1.y) {
-                servo1.setPosition(1);
-                servo2.setPosition(0);
+            if (gamepad1.y) { //alto
+                servo1.setPosition(0.8);
+                servo2.setPosition(0.2);
             }
 
+            telemetry.addLine("Foi");
             telemetry.addData("Servo f2", servo1.getPosition());
             telemetry.addData("Servo f1", servo2.getPosition());
             telemetry.update();
