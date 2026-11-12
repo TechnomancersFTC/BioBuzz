@@ -1,9 +1,9 @@
-
 package org.firstinspires.ftc.teamcode.teleops;
 
-
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
+import com.pedropathing.ivy.Command;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -16,7 +16,10 @@ import dev.nextftc.robot.opmode.NextOpMode;
 import dev.nextftc.robot.opmode.NextTeleop;
 import dev.nextftc.robot.triggers.CommandGamepad;
 
+import static com.pedropathing.ivy.commands.Commands.*;
+import static com.pedropathing.ivy.groups.Groups.sequential;
 
+@Config
 @NextTeleop(name = "TeleOp Turret Next")
 public class TeleOpTurretNext extends NextOpMode {
 
@@ -27,13 +30,12 @@ public class TeleOpTurretNext extends NextOpMode {
 
     private static final Pose START_POSE = paths.startPoseteleop;
 
-    private static final boolean RESET_TURRET_ENCODER = false;
+    private static final boolean RESET_TURRET_ENCODER = true;
 
     private static final double GOAL_X = 70.75;
     private static final double GOAL_Y = 84;
 
     public static volatile double reverse = 0.2;
-
     private final Robot robot;
     private final Follower follower;
 
@@ -58,6 +60,7 @@ public class TeleOpTurretNext extends NextOpMode {
 
         follower.setPose(initialPose);
         follower.update();
+
         robot.turret.init(
                 hardwareMap,
                 RESET_TURRET_ENCODER,
@@ -66,7 +69,6 @@ public class TeleOpTurretNext extends NextOpMode {
     }
 
     private double goalDistance() {
-
         Pose p = follower.pose();
 
         return Math.hypot(
@@ -75,11 +77,28 @@ public class TeleOpTurretNext extends NextOpMode {
         );
     }
 
+    private Command lockAndIntakeSequence() {
+        return sequential(
+                robot.flowerTake.shoot(),
+                 robot.intake.reverse(),
+                        waitMs((long) (reverse * 1000))
+                ,
+                robot.intake.stop(),
+                robot.lock.open(),
+                        robot.intake.run(),
+                        waitMs(1000),
+                robot.intake.stop(),
+                robot.lock.close()
+        );
+    }
+
     @Override
     public void start() {
 
-        robot.flowerTake.shoot().schedule();
         robot.turret.setAutoAimEnabled(true);
+
+        robot.flowerTake.shoot().schedule();
+
         robot.shooter.shootAuto(this::goalDistance);
 
         CommandGamepad gp1 = new CommandGamepad(gamepad1);
@@ -90,20 +109,24 @@ public class TeleOpTurretNext extends NextOpMode {
         gp1.a().whileTrue(robot.intake.reverse());
         gp1.a().onFalse(robot.intake.stop());
 
+        // Alterna o modo de disparo em movimento
         gp1.b().onTrue(robot.turret.toggleShootWhileMoving());
 
+        // Sequência completa do RB
+        gp1.rightBumper().onTrue(lockAndIntakeSequence());
+
+        // Flower
         gp1.leftTrigger().isOver(0.5).onTrue(robot.flowerTake.baixo());
         gp1.leftTrigger().isOver(0.5).onFalse(robot.flowerTake.shoot());
 
+        // Drive field-centric
         DriveCommands.mecanumDriveFieldCentric(
                 frontLeft,
                 frontRight,
                 backLeft,
                 backRight,
                 gamepad1,
-                () -> Math.toRadians(
-                        Math.toDegrees(follower.pose().heading()) + 180
-                )
+                () -> follower.pose().heading()
         ).schedule();
     }
 
@@ -111,6 +134,8 @@ public class TeleOpTurretNext extends NextOpMode {
     public void periodic() {
 
         follower.update();
+
+        // Botão Y: reseta a pose do Pedro
         if (gamepad1.y && !resetPressed) {
 
             follower.setPose(START_POSE);
@@ -139,7 +164,6 @@ public class TeleOpTurretNext extends NextOpMode {
                 "Auto Aim",
                 robot.turret.isAutoAimEnabled()
         );
-
 
         Telemetry.log(
                 "Turret Encoder",
