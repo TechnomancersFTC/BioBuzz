@@ -86,7 +86,6 @@ public class AutoTeste extends OpMode {
         shooter.setPower(0.7);
     }
 
-    // Comandos instantâneos para controlar o Intake
     public Command ligarIntake() {
         return instant(() -> {
             intake.setPower(1.0);

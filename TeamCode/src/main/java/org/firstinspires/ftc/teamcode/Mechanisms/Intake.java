@@ -11,8 +11,8 @@ public class Intake implements Mechanism {
 
     public Command run() {
         return instant(() -> {
-            intake.setThrottle(-1.0);
-            intake2.setThrottle(-1.0);
+            intake.setThrottle(-1);
+            intake2.setThrottle(-1);
         });
     }
     public Command reverse() {
